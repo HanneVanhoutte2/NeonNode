@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:project/screens/post_detail_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:project/firebase_options.dart';
 import '../help_functions/theme_provider.dart';
@@ -201,22 +202,28 @@ class _FeedScreenState extends State<FeedScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       itemCount: posts.length,
                       itemBuilder: (context, index) {
-                        final post =
-                        posts[index].data() as Map<String, dynamic>;
+                        final post = posts[index].data() as Map<String, dynamic>;
+                        final postId = posts[index].id;
                         final authorId = post['authorId'] ?? '';
                         final text = post['text'] ?? '';
                         final imageUrl = post['imageUrl'] ?? '';
                         final createdAt = post['createdAt'] as Timestamp?;
+                        final likeCount = post['likeCount'] ?? 0;
+                        final commentCount = post['commentCount'] ?? 0;
 
                         return PostCard(
+                          postId: postId,
                           authorId: authorId,
                           text: text,
                           imageUrl: imageUrl,
                           createdAt: createdAt,
+                          likeCount: likeCount,
+                          commentCount: commentCount,
                           isDark: isDark,
                         );
                       },
                     );
+
                   },
                 ),
               ),
@@ -262,6 +269,9 @@ class PostCard extends StatefulWidget {
   final String imageUrl;
   final Timestamp? createdAt;
   final bool isDark;
+  final String postId;
+  final int likeCount;
+  final int commentCount;
 
   const PostCard({
     required this.authorId,
@@ -269,6 +279,9 @@ class PostCard extends StatefulWidget {
     required this.imageUrl,
     required this.createdAt,
     required this.isDark,
+    required this.postId,
+    required this.likeCount,
+    required this.commentCount,
     super.key,
   });
 
@@ -276,14 +289,38 @@ class PostCard extends StatefulWidget {
   State<PostCard> createState() => _PostCardState();
 }
 
-class _PostCardState extends State<PostCard> {
+class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin {
   String _username = '';
+  String _avatarUrl = '';
   bool _isLoading = true;
+  bool _isLiked = false;
+  late int _likeCount;
+  late int _commentCount;
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
+    _likeCount = widget.likeCount;
+    _commentCount = widget.commentCount;
     _fetchUsername();
+    _checkIfLiked();
+
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchUsername() async {
@@ -295,23 +332,96 @@ class _PostCardState extends State<PostCard> {
 
       if (doc.exists) {
         setState(() {
-          _username = doc.data()?['username'] ??
-              doc.data()?['displayName'] ??
-              'Anonymous';
+          _username = doc.data()?['displayName'] ?? 'Anonymous';
+          _avatarUrl = doc.data()?['avatarUrl'] ?? '';
           _isLoading = false;
         });
       } else {
         setState(() {
           _username = 'Anonymous';
+          _avatarUrl = '';
           _isLoading = false;
         });
       }
     } catch (e) {
       setState(() {
         _username = 'Anonymous';
+        _avatarUrl = '';
         _isLoading = false;
       });
     }
+  }
+
+  Future<void> _checkIfLiked() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+
+    try {
+      final likeDoc = await FirebaseFirestore.instance
+          .collection('posts')
+          .doc(widget.postId)
+          .collection('likes')
+          .doc(currentUser.uid)
+          .get();
+
+      setState(() {
+        _isLiked = likeDoc.exists;
+      });
+    } catch (e) {
+      // Handle error
+    }
+  }
+
+  Future<void> _toggleLike() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+
+    _animationController.forward().then((_) => _animationController.reverse());
+
+    try {
+      final postRef = FirebaseFirestore.instance.collection('posts').doc(widget.postId);
+      final likeRef = postRef.collection('likes').doc(currentUser.uid);
+
+      if (_isLiked) {
+        await likeRef.delete();
+        await postRef.update({
+          'likeCount': FieldValue.increment(-1),
+        });
+        setState(() {
+          _isLiked = false;
+          _likeCount--;
+        });
+      } else {
+        await likeRef.set({
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+        await postRef.update({
+          'likeCount': FieldValue.increment(1),
+        });
+        setState(() {
+          _isLiked = true;
+          _likeCount++;
+        });
+      }
+    } catch (e) {
+      // Handle error
+    }
+  }
+
+  void _navigateToPostDetail() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PostDetailScreen(
+          postId: widget.postId,
+          authorId: widget.authorId,
+          text: widget.text,
+          imageUrl: widget.imageUrl,
+          createdAt: widget.createdAt,
+          isDark: widget.isDark,
+        ),
+      ),
+    );
   }
 
   String _formatTime(Timestamp? timestamp) {
@@ -344,94 +454,158 @@ class _PostCardState extends State<PostCard> {
         ? Colors.white.withValues(alpha: 0.6)
         : Colors.black.withValues(alpha: 0.6);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor, width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF22E3FF)
-                .withValues(alpha: widget.isDark ? 0.1 : 0.05),
-            blurRadius: 10,
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: const Color(0xFF8A00C4),
-                child: Text(
-                  _isLoading
-                      ? '?'
-                      : _username.isNotEmpty
-                      ? _username.substring(0, 1).toUpperCase()
-                      : 'A',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: _navigateToPostDetail,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: borderColor, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF22E3FF)
+                  .withValues(alpha: widget.isDark ? 0.1 : 0.05),
+              blurRadius: 10,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: const Color(0xFF8A00C4),
+                  backgroundImage: _avatarUrl.isNotEmpty
+                      ? NetworkImage(_avatarUrl)
+                      : null,
+                  child: _avatarUrl.isEmpty
+                      ? Text(
+                    _isLoading
+                        ? '?'
+                        : _username.isNotEmpty
+                        ? _username.substring(0, 1).toUpperCase()
+                        : 'A',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                      : null,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _isLoading ? 'Loading...' : _username,
+                        style: TextStyle(
+                          color: textColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                      Text(
+                        _formatTime(widget.createdAt),
+                        style: TextStyle(
+                          color: subtextColor,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              widget.text,
+              style: TextStyle(
+                color: textColor,
+                fontSize: 16,
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _isLoading ? 'Loading...' : _username,
-                      style: TextStyle(
-                        color: textColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
+            ),
+            if (widget.imageUrl.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 300),
+                  opacity: 1.0,
+                  child: Image.network(
+                    widget.imageUrl,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        height: 200,
+                        color: Colors.grey[300],
+                        child: const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      height: 200,
+                      color: Colors.grey[300],
+                      child: const Center(
+                        child: Icon(Icons.broken_image, size: 48),
                       ),
                     ),
-                    Text(
-                      _formatTime(widget.createdAt),
-                      style: TextStyle(
-                        color: subtextColor,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            widget.text,
-            style: TextStyle(
-              color: textColor,
-              fontSize: 16,
-            ),
-          ),
-          if (widget.imageUrl.isNotEmpty) ...[
             const SizedBox(height: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                widget.imageUrl,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  height: 200,
-                  color: Colors.grey[300],
-                  child: const Center(
-                    child: Icon(Icons.broken_image, size: 48),
+            Row(
+              children: [
+                ScaleTransition(
+                  scale: _scaleAnimation,
+                  child: IconButton(
+                    onPressed: _toggleLike,
+                    icon: Icon(
+                      _isLiked ? Icons.favorite : Icons.favorite_border,
+                      color: _isLiked ? Colors.red : textColor,
+                    ),
+                    iconSize: 24,
                   ),
                 ),
-              ),
+                Text(
+                  _likeCount.toString(),
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                IconButton(
+                  onPressed: _navigateToPostDetail,
+                  icon: Icon(
+                    Icons.comment_outlined,
+                    color: textColor,
+                  ),
+                  iconSize: 24,
+                ),
+                Text(
+                  _commentCount.toString(),
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
           ],
-        ],
+        ),
       ),
     );
   }
