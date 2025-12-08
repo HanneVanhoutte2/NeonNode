@@ -2,8 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../help_functions/theme_provider.dart';
+import '../help_functions/app_colors.dart';
+import '../help_functions/app_text_styles.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -108,34 +109,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final result = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: isDark ? const Color(0xFF0F1520) : Colors.white,
+        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
         title: Text(
           'Edit Display Name',
-          style: GoogleFonts.rammettoOne(
-            color: isDark ? Colors.white : Colors.black87,
-            fontSize: 20,
-          ),
+          style: AppTextStyles.h4(isDark),
         ),
         content: TextField(
           controller: controller,
-          style: GoogleFonts.rammettoOne(
-            color: isDark ? Colors.white : Colors.black87,
-            fontSize: 16,
-          ),
+          style: AppTextStyles.bodyLarge(isDark),
           decoration: InputDecoration(
             hintText: 'Enter new display name',
-            hintStyle: GoogleFonts.rammettoOne(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.5)
-                  : Colors.black.withValues(alpha: 0.5),
-              fontSize: 14,
+            hintStyle: AppTextStyles.bodyMedium(isDark).copyWith(
+              color: (isDark ? AppColors.darkText : AppColors.lightText)
+                  .withValues(alpha: 0.5),
             ),
             filled: true,
             fillColor: isDark
-                ? const Color(0xFF0A0E1A).withValues(alpha: 0.5)
+                ? AppColors.darkBackground.withValues(alpha: 0.5)
                 : Colors.grey[100],
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -148,11 +141,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onPressed: () => Navigator.pop(dialogContext, false),
             child: Text(
               'Cancel',
-              style: GoogleFonts.rammettoOne(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.7)
-                    : Colors.black.withValues(alpha: 0.7),
-                fontSize: 14,
+              style: AppTextStyles.bodyMedium(isDark).copyWith(
+                color: (isDark ? AppColors.darkText : AppColors.lightText)
+                    .withValues(alpha: 0.7),
               ),
             ),
           ),
@@ -181,7 +172,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF22E3FF),
+              backgroundColor: isDark ? AppColors.primary : AppColors.primaryDark,
               foregroundColor: Colors.black,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -189,9 +180,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             child: Text(
               'Save',
-              style: GoogleFonts.rammettoOne(
+              style: AppTextStyles.bodyMedium(false).copyWith(
                 color: Colors.black,
-                fontSize: 14,
               ),
             ),
           ),
@@ -206,12 +196,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           SnackBar(
             content: Text(
               'Display name updated! 🚀',
-              style: GoogleFonts.rammettoOne(
+              style: AppTextStyles.bodyMedium(false).copyWith(
                 color: Colors.black,
-                fontSize: 14,
               ),
             ),
-            backgroundColor: const Color(0xFF22E3FF),
+            backgroundColor: isDark ? AppColors.primary : AppColors.primaryDark,
           ),
         );
       }
@@ -228,37 +217,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final result = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: isDark ? const Color(0xFF0F1520) : Colors.white,
+        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
         title: Text(
           'Edit Profile Picture',
-          style: GoogleFonts.rammettoOne(
-            color: isDark ? Colors.white : Colors.black87,
-            fontSize: 20,
-          ),
+          style: AppTextStyles.h4(isDark),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: controller,
-              style: GoogleFonts.rammettoOne(
-                color: isDark ? Colors.white : Colors.black87,
-                fontSize: 16,
-              ),
+              style: AppTextStyles.bodyLarge(isDark),
               decoration: InputDecoration(
                 hintText: 'Enter image URL',
-                hintStyle: GoogleFonts.rammettoOne(
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.5)
-                      : Colors.black.withValues(alpha: 0.5),
-                  fontSize: 14,
+                hintStyle: AppTextStyles.bodyMedium(isDark).copyWith(
+                  color: (isDark ? AppColors.darkText : AppColors.lightText)
+                      .withValues(alpha: 0.5),
                 ),
                 filled: true,
                 fillColor: isDark
-                    ? const Color(0xFF0A0E1A).withValues(alpha: 0.5)
+                    ? AppColors.darkBackground.withValues(alpha: 0.5)
                     : Colors.grey[100],
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -269,12 +250,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 12),
             Text(
               'Paste a direct link to your profile image',
-              style: GoogleFonts.rammettoOne(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.6)
-                    : Colors.black.withValues(alpha: 0.6),
-                fontSize: 12,
-              ),
+              style: AppTextStyles.caption(isDark),
             ),
           ],
         ),
@@ -283,11 +259,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onPressed: () => Navigator.pop(dialogContext, false),
             child: Text(
               'Cancel',
-              style: GoogleFonts.rammettoOne(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.7)
-                    : Colors.black.withValues(alpha: 0.7),
-                fontSize: 14,
+              style: AppTextStyles.bodyMedium(isDark).copyWith(
+                color: (isDark ? AppColors.darkText : AppColors.lightText)
+                    .withValues(alpha: 0.7),
               ),
             ),
           ),
@@ -313,7 +287,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF22E3FF),
+              backgroundColor: isDark ? AppColors.primary : AppColors.primaryDark,
               foregroundColor: Colors.black,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -321,9 +295,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             child: Text(
               'Save',
-              style: GoogleFonts.rammettoOne(
+              style: AppTextStyles.bodyMedium(false).copyWith(
                 color: Colors.black,
-                fontSize: 14,
               ),
             ),
           ),
@@ -338,12 +311,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           SnackBar(
             content: Text(
               'Profile picture updated! 🚀',
-              style: GoogleFonts.rammettoOne(
+              style: AppTextStyles.bodyMedium(false).copyWith(
                 color: Colors.black,
-                fontSize: 14,
               ),
             ),
-            backgroundColor: const Color(0xFF22E3FF),
+            backgroundColor: isDark ? AppColors.primary : AppColors.primaryDark,
           ),
         );
       }
@@ -351,6 +323,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _changePassword() async {
+    final isDark = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null || currentUser.email == null) return;
 
@@ -364,12 +338,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SnackBar(
           content: Text(
             'Password reset email sent! Check your inbox.',
-            style: GoogleFonts.rammettoOne(
+            style: AppTextStyles.bodyMedium(false).copyWith(
               color: Colors.black,
-              fontSize: 14,
             ),
           ),
-          backgroundColor: const Color(0xFF22E3FF),
+          backgroundColor: isDark ? AppColors.primary : AppColors.primaryDark,
         ),
       );
     } catch (e) {
@@ -378,12 +351,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SnackBar(
           content: Text(
             'Failed to send password reset email',
-            style: GoogleFonts.rammettoOne(
+            style: AppTextStyles.bodyMedium(false).copyWith(
               color: Colors.white,
-              fontSize: 14,
             ),
           ),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
         ),
       );
     }
@@ -392,14 +364,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    final backgroundColor = isDark ? const Color(0xFF0A0E1A) : Colors.grey[50]!;
-    final textColor = isDark ? Colors.white : Colors.black87;
+    final backgroundColor = isDark ? AppColors.darkBackground : AppColors.lightBackground;
     final cardColor = isDark
-        ? const Color(0xFF0F1520).withValues(alpha: 0.6)
-        : Colors.white;
+        ? AppColors.darkCard.withValues(alpha: 0.6)
+        : AppColors.lightCard;
     final borderColor = isDark
-        ? const Color(0xFF22E3FF).withValues(alpha: 0.3)
-        : Colors.grey[300]!;
+        ? (isDark ? AppColors.primary : AppColors.primaryDark).withValues(alpha: 0.5)
+        : AppColors.lightBorder;
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
@@ -411,8 +382,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF0A0E1A),
-              Color(0xFF050816),
+              AppColors.darkBackground,
+              AppColors.darkBackgroundGradient,
             ],
           ),
         )
@@ -421,23 +392,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             children: [
               Padding(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
                 child: Row(
                   children: [
-                    const Image(
-                      image: AssetImage('assets/logo-color.png'),
+                    Image(
+                      image: AssetImage(
+                          isDark ? 'assets/logo-dark-mode.png' : 'assets/logo-light-mode.png'
+                      ),
                       height: 40,
                     ),
                     const Spacer(),
                     IconButton(
                       onPressed: () {
-                        Provider.of<ThemeProvider>(context, listen: false)
-                            .toggleTheme();
+                        Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
                       },
                       icon: Icon(
                         isDark ? Icons.light_mode : Icons.dark_mode,
-                        color: textColor,
+                        color: isDark ? AppColors.darkText : AppColors.lightText,
                       ),
                       tooltip: isDark ? 'Light Mode' : 'Dark Mode',
                     ),
@@ -455,7 +426,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           CircleAvatar(
                             radius: 60,
-                            backgroundColor: const Color(0xFF8A00C4),
+                            backgroundColor: isDark ? AppColors.secondary : AppColors.secondaryDark,
                             backgroundImage: _avatarUrl.isNotEmpty
                                 ? NetworkImage(_avatarUrl)
                                 : null,
@@ -464,14 +435,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               _isLoading
                                   ? '?'
                                   : _displayName.isNotEmpty
-                                  ? _displayName
-                                  .substring(0, 1)
-                                  .toUpperCase()
+                                  ? _displayName.substring(0, 1).toUpperCase()
                                   : 'U',
-                              style: GoogleFonts.rammettoOne(
+                              style: AppTextStyles.h1(false).copyWith(
                                 color: Colors.white,
-                                fontSize: 48,
-                                fontWeight: FontWeight.bold,
                               ),
                             )
                                 : null,
@@ -484,7 +451,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF22E3FF),
+                                  color: isDark ? AppColors.primary : AppColors.primaryDark,
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
@@ -493,10 +460,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   ],
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.camera_alt,
                                   size: 20,
-                                  color: Colors.black,
+                                  color: isDark ? Colors.black : Colors.white,
                                 ),
                               ),
                             ),
@@ -509,18 +476,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           Text(
                             _isLoading ? 'Loading...' : _displayName,
-                            style: GoogleFonts.rammettoOne(
-                              color: textColor,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: AppTextStyles.h2(isDark),
                           ),
                           IconButton(
                             onPressed: _editDisplayName,
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.edit,
                               size: 20,
-                              color: Color(0xFF22E3FF),
+                              color: isDark ? AppColors.primary : AppColors.primaryDark,
                             ),
                           ),
                         ],
@@ -528,10 +491,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: 8),
                       Text(
                         user?.email ?? 'No email',
-                        style: GoogleFonts.rammettoOne(
-                          color: textColor.withValues(alpha: 0.7),
-                          fontSize: 14,
-                        ),
+                        style: AppTextStyles.subtitle(isDark),
                       ),
                       const SizedBox(height: 24),
 
@@ -546,13 +506,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 decoration: BoxDecoration(
                                   color: cardColor,
                                   borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: borderColor, width: 1),
+                                  border: Border.all(color: borderColor, width: 2),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFF22E3FF)
-                                          .withValues(alpha: isDark ? 0.1 : 0.05),
-                                      blurRadius: 10,
-                                      spreadRadius: 1,
+                                      color: (isDark ? AppColors.primary : AppColors.primaryDark)
+                                          .withValues(alpha: isDark ? 0.15 : 0.1),
+                                      blurRadius: 12,
+                                      spreadRadius: 2,
                                     ),
                                   ],
                                 ),
@@ -560,19 +520,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   children: [
                                     Text(
                                       _postCount.toString(),
-                                      style: GoogleFonts.rammettoOne(
-                                        color: const Color(0xFF22E3FF),
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.bold,
+                                      style: AppTextStyles.h2(isDark).copyWith(
+                                        color: isDark ? AppColors.primary : AppColors.primaryDark,
                                       ),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
                                       'Posts',
-                                      style: GoogleFonts.rammettoOne(
-                                        color: textColor.withValues(alpha: 0.7),
-                                        fontSize: 14,
-                                      ),
+                                      style: AppTextStyles.bodyMedium(isDark),
                                     ),
                                   ],
                                 ),
@@ -588,13 +543,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 decoration: BoxDecoration(
                                   color: cardColor,
                                   borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: borderColor, width: 1),
+                                  border: Border.all(color: borderColor, width: 2),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFF22E3FF)
-                                          .withValues(alpha: isDark ? 0.1 : 0.05),
-                                      blurRadius: 10,
-                                      spreadRadius: 1,
+                                      color: (isDark ? AppColors.secondary : AppColors.secondaryDark)
+                                          .withValues(alpha: isDark ? 0.15 : 0.1),
+                                      blurRadius: 12,
+                                      spreadRadius: 2,
                                     ),
                                   ],
                                 ),
@@ -602,19 +557,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   children: [
                                     Text(
                                       _commentCount.toString(),
-                                      style: GoogleFonts.rammettoOne(
-                                        color: const Color(0xFF8A00C4),
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.bold,
+                                      style: AppTextStyles.h2(isDark).copyWith(
+                                        color: isDark ? AppColors.secondary : AppColors.secondaryDark,
                                       ),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
                                       'Comments',
-                                      style: GoogleFonts.rammettoOne(
-                                        color: textColor.withValues(alpha: 0.7),
-                                        fontSize: 14,
-                                      ),
+                                      style: AppTextStyles.bodyMedium(isDark),
                                     ),
                                   ],
                                 ),
@@ -630,26 +580,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         decoration: BoxDecoration(
                           color: cardColor,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: borderColor, width: 1),
+                          border: Border.all(color: borderColor, width: 2),
                         ),
                         child: Column(
                           children: [
                             ListTile(
                               leading: Icon(
                                 Icons.lock,
-                                color: textColor,
+                                color: isDark ? AppColors.darkText : AppColors.lightText,
                               ),
                               title: Text(
                                 'Change Password',
-                                style: GoogleFonts.rammettoOne(
-                                  color: textColor,
-                                  fontSize: 14,
-                                ),
+                                style: AppTextStyles.bodyMedium(isDark),
                               ),
                               trailing: Icon(
                                 Icons.arrow_forward_ios,
                                 size: 16,
-                                color: textColor.withValues(alpha: 0.5),
+                                color: (isDark ? AppColors.darkText : AppColors.lightText)
+                                    .withValues(alpha: 0.5),
                               ),
                               onTap: _changePassword,
                             ),
@@ -660,31 +608,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ListTile(
                               leading: Icon(
                                 Icons.notifications,
-                                color: textColor,
+                                color: isDark ? AppColors.darkText : AppColors.lightText,
                               ),
                               title: Text(
                                 'Notifications',
-                                style: GoogleFonts.rammettoOne(
-                                  color: textColor,
-                                  fontSize: 14,
-                                ),
+                                style: AppTextStyles.bodyMedium(isDark),
                               ),
                               trailing: Icon(
                                 Icons.arrow_forward_ios,
                                 size: 16,
-                                color: textColor.withValues(alpha: 0.5),
+                                color: (isDark ? AppColors.darkText : AppColors.lightText)
+                                    .withValues(alpha: 0.5),
                               ),
                               onTap: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
                                       'Coming soon!',
-                                      style: GoogleFonts.rammettoOne(
+                                      style: AppTextStyles.bodyMedium(false).copyWith(
                                         color: Colors.black,
-                                        fontSize: 14,
                                       ),
                                     ),
-                                    backgroundColor: const Color(0xFF22E3FF),
+                                    backgroundColor: isDark ? AppColors.primary : AppColors.primaryDark,
                                   ),
                                 );
                               },
@@ -705,13 +650,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           icon: const Icon(Icons.logout),
                           label: Text(
                             'Logout',
-                            style: GoogleFonts.rammettoOne(
+                            style: AppTextStyles.button(isDark).copyWith(
                               color: Colors.white,
-                              fontSize: 16,
                             ),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF8A00C4),
+                            backgroundColor: isDark ? AppColors.secondary : AppColors.secondaryDark,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
@@ -749,13 +693,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               break;
           }
         },
-        backgroundColor: isDark ? const Color(0xFF0F1520) : Colors.white,
-        selectedItemColor: const Color(0xFF22E3FF),
-        unselectedItemColor: isDark
-            ? Colors.white.withValues(alpha: 0.5)
-            : Colors.black.withValues(alpha: 0.5),
-        selectedLabelStyle: GoogleFonts.rammettoOne(fontSize: 12),
-        unselectedLabelStyle: GoogleFonts.rammettoOne(fontSize: 12),
+        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+        selectedItemColor: isDark ? AppColors.primary : AppColors.primaryDark,
+        unselectedItemColor: (isDark ? AppColors.darkText : AppColors.lightText)
+            .withValues(alpha: 0.5),
+        selectedLabelStyle: AppTextStyles.caption(isDark),
+        unselectedLabelStyle: AppTextStyles.caption(isDark),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -792,8 +735,7 @@ class UserPostsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    final backgroundColor = isDark ? const Color(0xFF0A0E1A) : Colors.grey[50]!;
-    final textColor = isDark ? Colors.white : Colors.black87;
+    final backgroundColor = isDark ? AppColors.darkBackground : AppColors.lightBackground;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -804,8 +746,8 @@ class UserPostsScreen extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF0A0E1A),
-              Color(0xFF050816),
+              AppColors.darkBackground,
+              AppColors.darkBackgroundGradient,
             ],
           ),
         )
@@ -819,15 +761,14 @@ class UserPostsScreen extends StatelessWidget {
                   children: [
                     IconButton(
                       onPressed: () => Navigator.pop(context),
-                      icon: Icon(Icons.arrow_back, color: textColor),
+                      icon: Icon(
+                        Icons.arrow_back,
+                        color: isDark ? AppColors.darkText : AppColors.lightText,
+                      ),
                     ),
                     Text(
                       '$displayName\'s Posts',
-                      style: GoogleFonts.rammettoOne(
-                        color: textColor,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: AppTextStyles.h3(isDark),
                     ),
                   ],
                 ),
@@ -846,18 +787,15 @@ class UserPostsScreen extends StatelessWidget {
                       return Center(
                         child: Text(
                           'Error loading posts',
-                          style: GoogleFonts.rammettoOne(
-                            color: textColor,
-                            fontSize: 16,
-                          ),
+                          style: AppTextStyles.bodyLarge(isDark),
                         ),
                       );
                     }
 
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
+                      return Center(
                         child: CircularProgressIndicator(
-                          color: Color(0xFF22E3FF),
+                          color: isDark ? AppColors.primary : AppColors.primaryDark,
                         ),
                       );
                     }
@@ -870,15 +808,16 @@ class UserPostsScreen extends StatelessWidget {
                             Icon(
                               Icons.post_add,
                               size: 64,
-                              color: textColor.withValues(alpha: 0.3),
+                              color: (isDark ? AppColors.darkText : AppColors.lightText)
+                                  .withValues(alpha: 0.3),
                             ),
                             const SizedBox(height: 16),
                             Text(
                               'No posts yet',
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.rammettoOne(
-                                color: textColor.withValues(alpha: 0.6),
-                                fontSize: 16,
+                              style: AppTextStyles.bodyLarge(isDark).copyWith(
+                                color: (isDark ? AppColors.darkText : AppColors.lightText)
+                                    .withValues(alpha: 0.6),
                               ),
                             ),
                           ],
@@ -917,6 +856,149 @@ class UserPostsScreen extends StatelessWidget {
   }
 }
 
+class PostListItem extends StatelessWidget {
+  final String postId;
+  final String text;
+  final String imageUrl;
+  final Timestamp? createdAt;
+  final int likeCount;
+  final int commentCount;
+  final bool isDark;
+
+  const PostListItem({
+    required this.postId,
+    required this.text,
+    required this.imageUrl,
+    required this.createdAt,
+    required this.likeCount,
+    required this.commentCount,
+    required this.isDark,
+    super.key,
+  });
+
+  String _formatTime(Timestamp? timestamp) {
+    if (timestamp == null) return 'Just now';
+    final date = timestamp.toDate();
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays}d ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}m ago';
+    } else {
+      return 'Just now';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cardColor = isDark
+        ? AppColors.darkCard.withValues(alpha: 0.6)
+        : AppColors.lightCard;
+    final borderColor = isDark
+        ? AppColors.primary.withValues(alpha: 0.5)
+        : AppColors.secondary.withValues(alpha: 0.4);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: borderColor, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: (isDark ? AppColors.primary : AppColors.secondary)
+                .withValues(alpha: isDark ? 0.15 : 0.1),
+            blurRadius: 12,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            text,
+            style: AppTextStyles.bodyLarge(isDark),
+          ),
+          if (imageUrl.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                imageUrl,
+                width: double.infinity,
+                height: 200,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  height: 200,
+                  color: Colors.grey[300],
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.broken_image, size: 48),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Image not available',
+                          style: AppTextStyles.caption(isDark),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Icon(
+                Icons.favorite,
+                size: 16,
+                color: (isDark ? AppColors.darkText : AppColors.lightText)
+                    .withValues(alpha: 0.6),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                likeCount.toString(),
+                style: AppTextStyles.bodySmall(isDark).copyWith(
+                  color: (isDark ? AppColors.darkText : AppColors.lightText)
+                      .withValues(alpha: 0.6),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Icon(
+                Icons.comment,
+                size: 16,
+                color: (isDark ? AppColors.darkText : AppColors.lightText)
+                    .withValues(alpha: 0.6),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                commentCount.toString(),
+                style: AppTextStyles.bodySmall(isDark).copyWith(
+                  color: (isDark ? AppColors.darkText : AppColors.lightText)
+                      .withValues(alpha: 0.6),
+                ),
+              ),
+              const Spacer(),
+              Text(
+                _formatTime(createdAt),
+                style: AppTextStyles.timestamp(isDark),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class UserCommentsScreen extends StatelessWidget {
   final String userId;
   final String displayName;
@@ -930,14 +1012,13 @@ class UserCommentsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    final backgroundColor = isDark ? const Color(0xFF0A0E1A) : Colors.grey[50]!;
-    final textColor = isDark ? Colors.white : Colors.black87;
+    final backgroundColor = isDark ? AppColors.darkBackground : AppColors.lightBackground;
     final cardColor = isDark
-        ? const Color(0xFF0F1520).withValues(alpha: 0.6)
-        : Colors.white;
+        ? AppColors.darkCard.withValues(alpha: 0.6)
+        : AppColors.lightCard;
     final borderColor = isDark
-        ? const Color(0xFF22E3FF).withValues(alpha: 0.3)
-        : Colors.grey[300]!;
+        ? AppColors.primary.withValues(alpha: 0.5)
+        : AppColors.secondary.withValues(alpha: 0.4);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -948,8 +1029,8 @@ class UserCommentsScreen extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF0A0E1A),
-              Color(0xFF050816),
+              AppColors.darkBackground,
+              AppColors.darkBackgroundGradient,
             ],
           ),
         )
@@ -963,15 +1044,14 @@ class UserCommentsScreen extends StatelessWidget {
                   children: [
                     IconButton(
                       onPressed: () => Navigator.pop(context),
-                      icon: Icon(Icons.arrow_back, color: textColor),
+                      icon: Icon(
+                        Icons.arrow_back,
+                        color: isDark ? AppColors.darkText : AppColors.lightText,
+                      ),
                     ),
                     Text(
                       '$displayName\'s Comments',
-                      style: GoogleFonts.rammettoOne(
-                        color: textColor,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: AppTextStyles.h3(isDark),
                     ),
                   ],
                 ),
@@ -985,18 +1065,15 @@ class UserCommentsScreen extends StatelessWidget {
                       return Center(
                         child: Text(
                           'Error loading comments',
-                          style: GoogleFonts.rammettoOne(
-                            color: textColor,
-                            fontSize: 16,
-                          ),
+                          style: AppTextStyles.bodyLarge(isDark),
                         ),
                       );
                     }
 
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
+                      return Center(
                         child: CircularProgressIndicator(
-                          color: Color(0xFF22E3FF),
+                          color: isDark ? AppColors.primary : AppColors.primaryDark,
                         ),
                       );
                     }
@@ -1009,15 +1086,16 @@ class UserCommentsScreen extends StatelessWidget {
                             Icon(
                               Icons.comment,
                               size: 64,
-                              color: textColor.withValues(alpha: 0.3),
+                              color: (isDark ? AppColors.darkText : AppColors.lightText)
+                                  .withValues(alpha: 0.3),
                             ),
                             const SizedBox(height: 16),
                             Text(
                               'No comments yet',
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.rammettoOne(
-                                color: textColor.withValues(alpha: 0.6),
-                                fontSize: 16,
+                              style: AppTextStyles.bodyLarge(isDark).copyWith(
+                                color: (isDark ? AppColors.darkText : AppColors.lightText)
+                                    .withValues(alpha: 0.6),
                               ),
                             ),
                           ],
@@ -1038,25 +1116,27 @@ class UserCommentsScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: cardColor,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: borderColor, width: 1),
+                            border: Border.all(color: borderColor, width: 2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: (isDark ? AppColors.primary : AppColors.secondary)
+                                    .withValues(alpha: isDark ? 0.15 : 0.1),
+                                blurRadius: 12,
+                                spreadRadius: 2,
+                              ),
+                            ],
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 comment['text'] ?? '',
-                                style: GoogleFonts.rammettoOne(
-                                  color: textColor,
-                                  fontSize: 15,
-                                ),
+                                style: AppTextStyles.bodyMedium(isDark),
                               ),
                               const SizedBox(height: 8),
                               Text(
                                 'On post: ${comment['postPreview'] ?? 'Unknown'}',
-                                style: GoogleFonts.rammettoOne(
-                                  color: textColor.withValues(alpha: 0.5),
-                                  fontSize: 12,
-                                ),
+                                style: AppTextStyles.caption(isDark),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -1064,10 +1144,7 @@ class UserCommentsScreen extends StatelessWidget {
                                 const SizedBox(height: 4),
                                 Text(
                                   _formatTime(comment['createdAt'] as Timestamp?),
-                                  style: GoogleFonts.rammettoOne(
-                                    color: textColor.withValues(alpha: 0.4),
-                                    fontSize: 11,
-                                  ),
+                                  style: AppTextStyles.timestamp(isDark),
                                 ),
                               ],
                             ],
@@ -1123,137 +1200,5 @@ class UserCommentsScreen extends StatelessWidget {
     }
 
     return userComments;
-  }
-}
-
-class PostListItem extends StatelessWidget {
-  final String postId;
-  final String text;
-  final String imageUrl;
-  final Timestamp? createdAt;
-  final int likeCount;
-  final int commentCount;
-  final bool isDark;
-
-  const PostListItem({
-    required this.postId,
-    required this.text,
-    required this.imageUrl,
-    required this.createdAt,
-    required this.likeCount,
-    required this.commentCount,
-    required this.isDark,
-    super.key,
-  });
-
-  String _formatTime(Timestamp? timestamp) {
-    if (timestamp == null) return 'Just now';
-    final date = timestamp.toDate();
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inDays > 0) {
-      return '${difference.inDays}d ago';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours}h ago';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}m ago';
-    } else {
-      return 'Just now';
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cardColor = isDark
-        ? const Color(0xFF0F1520).withValues(alpha: 0.6)
-        : Colors.white;
-    final borderColor = isDark
-        ? const Color(0xFF22E3FF).withValues(alpha: 0.3)
-        : Colors.grey[300]!;
-    final textColor = isDark ? Colors.white : Colors.black87;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor, width: 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            text,
-            style: GoogleFonts.rammettoOne(
-              color: textColor,
-              fontSize: 16,
-            ),
-          ),
-          if (imageUrl.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                imageUrl,
-                width: double.infinity,
-                height: 200,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  height: 200,
-                  color: Colors.grey[300],
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.broken_image, size: 48),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Image not available',
-                          style: GoogleFonts.rammettoOne(fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Icon(Icons.favorite, size: 16, color: textColor.withValues(alpha: 0.6)),
-              const SizedBox(width: 4),
-              Text(
-                likeCount.toString(),
-                style: GoogleFonts.rammettoOne(
-                  color: textColor.withValues(alpha: 0.6),
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Icon(Icons.comment, size: 16, color: textColor.withValues(alpha: 0.6)),
-              const SizedBox(width: 4),
-              Text(
-                commentCount.toString(),
-                style: GoogleFonts.rammettoOne(
-                  color: textColor.withValues(alpha: 0.6),
-                  fontSize: 14,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                _formatTime(createdAt),
-                style: GoogleFonts.rammettoOne(
-                  color: textColor.withValues(alpha: 0.5),
-                  fontSize: 13,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
   }
 }

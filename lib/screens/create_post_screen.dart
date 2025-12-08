@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:project/help_functions/app_colors.dart';
+import 'package:project/help_functions/app_text_styles.dart';
 import 'package:provider/provider.dart';
 
 import '../help_functions/theme_provider.dart';
@@ -30,7 +31,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         SnackBar(
           content: Text(
             'You must be logged in to post',
-            style: GoogleFonts.rammettoOne(fontSize: 14),
+            style: AppTextStyles.bodyMedium(false),
           ),
         ),
       );
@@ -59,9 +60,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         SnackBar(
           content: Text(
             'Failed to create post',
-            style: GoogleFonts.rammettoOne(fontSize: 14),
+            style: AppTextStyles.bodyMedium(false).copyWith(
+              color: Colors.white,
+            ),
           ),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
         ),
       );
     } finally {
@@ -81,17 +84,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    final backgroundColor = isDark ? const Color(0xFF0A0E1A) : Colors.grey[50]!;
+    final backgroundColor = isDark ? AppColors.darkBackground : AppColors.lightBackground;
     final cardColor = isDark
-        ? const Color(0xFF0F1520).withValues(alpha: 0.6)
-        : Colors.white;
+        ? AppColors.darkCard.withValues(alpha: 0.6)
+        : AppColors.lightCard;
     final borderColor = isDark
-        ? const Color(0xFF8A00C4).withValues(alpha: 0.3)
-        : const Color(0xFF8A00C4).withValues(alpha: 0.2);
-    final textColor = isDark ? Colors.white : Colors.black87;
-    final labelColor = isDark
-        ? const Color(0xFF8A00C4).withValues(alpha: 0.8)
-        : const Color(0xFF8A00C4);
+        ? AppColors.secondary.withValues(alpha: 0.5)
+        : AppColors.secondaryDark.withValues(alpha: 0.4);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -102,8 +101,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF0A0E1A),
-              Color(0xFF050816),
+              AppColors.darkBackground,
+              AppColors.darkBackgroundGradient,
             ],
           ),
         )
@@ -113,23 +112,23 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             children: [
               // Top bar
               Padding(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
                 child: Row(
                   children: [
-                    const Image(
-                      image: AssetImage('assets/logo-color.png'),
+                    Image(
+                      image: AssetImage(
+                          isDark ? 'assets/logo-dark-mode.png' : 'assets/logo-light-mode.png'
+                      ),
                       height: 40,
                     ),
                     const Spacer(),
                     IconButton(
                       onPressed: () {
-                        Provider.of<ThemeProvider>(context, listen: false)
-                            .toggleTheme();
+                        Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
                       },
                       icon: Icon(
                         isDark ? Icons.light_mode : Icons.dark_mode,
-                        color: textColor,
+                        color: isDark ? AppColors.darkText : AppColors.lightText,
                       ),
                       tooltip: isDark ? 'Light Mode' : 'Dark Mode',
                     ),
@@ -153,12 +152,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
                             color: borderColor,
-                            width: 1,
+                            width: 2,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF8A00C4)
-                                  .withValues(alpha: isDark ? 0.1 : 0.05),
+                              color: (isDark ? AppColors.secondary : AppColors.secondaryDark)
+                                  .withValues(alpha: isDark ? 0.15 : 0.1),
                               blurRadius: 20,
                               spreadRadius: 2,
                             ),
@@ -173,21 +172,17 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                               TextFormField(
                                 controller: _textController,
                                 maxLines: 5,
-                                style: GoogleFonts.rammettoOne(
-                                  color: textColor,
-                                  fontSize: 16,
-                                ),
+                                style: AppTextStyles.bodyLarge(isDark),
                                 decoration: InputDecoration(
                                   labelText: 'What\'s on your mind?',
-                                  labelStyle: GoogleFonts.rammettoOne(
-                                    color: labelColor,
-                                    fontSize: 14,
+                                  labelStyle: AppTextStyles.bodyMedium(isDark).copyWith(
+                                    color: (isDark ? AppColors.secondary : AppColors.secondaryDark)
+                                        .withValues(alpha: 0.8),
                                   ),
                                   filled: true,
                                   fillColor: isDark
-                                      ? const Color(0xFF0A0E1A)
-                                      .withValues(alpha: 0.5)
-                                      : Colors.grey[100],
+                                      ? AppColors.darkBackground.withValues(alpha: 0.5)
+                                      : AppColors.lightBackground.withValues(alpha: 0.5),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
                                     borderSide: BorderSide(
@@ -197,28 +192,27 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(
-                                      color: Color(0xFF8A00C4),
+                                    borderSide: BorderSide(
+                                      color: isDark ? AppColors.secondary : AppColors.secondaryDark,
                                       width: 2,
                                     ),
                                   ),
                                   errorBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(
-                                      color: Color(0xFFFF2CD6),
+                                    borderSide: BorderSide(
+                                      color: isDark ? AppColors.pink : AppColors.pinkDark,
                                       width: 1.5,
                                     ),
                                   ),
                                   focusedErrorBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(
-                                      color: Color(0xFFFF2CD6),
+                                    borderSide: BorderSide(
+                                      color: isDark ? AppColors.pink : AppColors.pinkDark,
                                       width: 2,
                                     ),
                                   ),
-                                  errorStyle: GoogleFonts.rammettoOne(
-                                    color: const Color(0xFFFF2CD6),
-                                    fontSize: 12,
+                                  errorStyle: AppTextStyles.caption(isDark).copyWith(
+                                    color: isDark ? AppColors.pink : AppColors.pinkDark,
                                   ),
                                   contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 20,
@@ -241,21 +235,17 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                               // Image URL field
                               TextFormField(
                                 controller: _imageUrlController,
-                                style: GoogleFonts.rammettoOne(
-                                  color: textColor,
-                                  fontSize: 16,
-                                ),
+                                style: AppTextStyles.bodyLarge(isDark),
                                 decoration: InputDecoration(
                                   labelText: 'Image URL (optional)',
-                                  labelStyle: GoogleFonts.rammettoOne(
-                                    color: labelColor,
-                                    fontSize: 14,
+                                  labelStyle: AppTextStyles.bodyMedium(isDark).copyWith(
+                                    color: (isDark ? AppColors.secondary : AppColors.secondaryDark)
+                                        .withValues(alpha: 0.8),
                                   ),
                                   filled: true,
                                   fillColor: isDark
-                                      ? const Color(0xFF0A0E1A)
-                                      .withValues(alpha: 0.5)
-                                      : Colors.grey[100],
+                                      ? AppColors.darkBackground.withValues(alpha: 0.5)
+                                      : AppColors.lightBackground.withValues(alpha: 0.5),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
                                     borderSide: BorderSide(
@@ -265,8 +255,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(
-                                      color: Color(0xFF8A00C4),
+                                    borderSide: BorderSide(
+                                      color: isDark ? AppColors.secondary : AppColors.secondaryDark,
                                       width: 2,
                                     ),
                                   ),
@@ -286,13 +276,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                 child: ElevatedButton(
                                   onPressed: _isLoading ? null : _onAddPost,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF8A00C4),
+                                    backgroundColor: isDark ? AppColors.secondary : AppColors.secondaryDark,
                                     foregroundColor: Colors.white,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                     elevation: 8,
-                                    shadowColor: const Color(0xFF8A00C4)
+                                    shadowColor: (isDark ? AppColors.secondary : AppColors.secondaryDark)
                                         .withValues(alpha: 0.5),
                                   ),
                                   child: _isLoading
@@ -306,10 +296,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                   )
                                       : Text(
                                     'POST',
-                                    style: GoogleFonts.rammettoOne(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1.5,
+                                    style: AppTextStyles.button(isDark).copyWith(
                                       color: Colors.white,
                                     ),
                                   ),
@@ -346,13 +333,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               break;
           }
         },
-        backgroundColor: isDark ? const Color(0xFF0F1520) : Colors.white,
-        selectedItemColor: const Color(0xFF22E3FF),
-        unselectedItemColor: isDark
-            ? Colors.white.withValues(alpha: 0.5)
-            : Colors.black.withValues(alpha: 0.5),
-        selectedLabelStyle: GoogleFonts.rammettoOne(fontSize: 12),
-        unselectedLabelStyle: GoogleFonts.rammettoOne(fontSize: 12),
+        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+        selectedItemColor: isDark ? AppColors.primary : AppColors.primaryDark,
+        unselectedItemColor: (isDark ? AppColors.darkText : AppColors.lightText)
+            .withValues(alpha: 0.5),
+        selectedLabelStyle: AppTextStyles.caption(isDark),
+        unselectedLabelStyle: AppTextStyles.caption(isDark),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),

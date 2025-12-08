@@ -17,6 +17,7 @@ dependencies:
   firebase_core: ^4.2.1
   provider: ^6.1.5+1
   google_fonts: ^6.3.3
+  flutter_svg: ^2.2.3
 
 dev_dependencies:
   flutter_test:
@@ -27,4 +28,5 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/logo-color.png
+    - assets/logo-dark-mode.png
+    - assets/logo-light-mode.png

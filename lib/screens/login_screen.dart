@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:project/help_functions/app_text_styles.dart';
+import '../help_functions/app_colors.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -87,15 +89,15 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0E1A),
+      backgroundColor: AppColors.darkBackground,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF0A0E1A),
-              Color(0xFF050816),
+              AppColors.darkBackground,
+              AppColors.darkBackgroundGradient,
             ],
           ),
         ),
@@ -107,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Image(
-                    image: AssetImage('assets/logo-color.png'),
+                    image: AssetImage('assets/logo-dark-mode.png'),
                     height: 120,
                   ),
                   const SizedBox(height: 48),
@@ -126,8 +128,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     activeLabel: 'Register',
                     inactiveLabel: 'Login',
-                    activeColor: const Color(0xFF8A00C4),
-                    inactiveColor: const Color(0xFF39FF14),
+                    activeColor: AppColors.secondary,
+                    inactiveColor: AppColors.accent,
                   ),
 
                   const SizedBox(height: 40),
@@ -135,15 +137,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0F1520).withValues(alpha: 0.6),
+                      color: AppColors.darkBackground.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: const Color(0xFF39FF14).withValues(alpha: 0.3),
+                        color: AppColors.accent.withValues(alpha: 0.3),
                         width: 1,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF39FF14).withValues(alpha: 0.1),
+                          color: AppColors.accent.withValues(alpha: 0.1),
                           blurRadius: 20,
                           spreadRadius: 2,
                         ),
@@ -169,48 +171,45 @@ class _LoginScreenState extends State<LoginScreen> {
             controller: _emailOrUsernameController,
             keyboardType: TextInputType.emailAddress,
             autocorrect: false,
-            style: GoogleFonts.rammettoOne(
-              color: Colors.white,
-              fontSize: 16,
-            ),
+            style: AppTextStyles.bodyLarge(true),
             decoration: InputDecoration(
               labelText: 'Email or Username',
               labelStyle: GoogleFonts.rammettoOne(
-                color: const Color(0xFF39FF14).withValues(alpha: 0.8),
+                color: AppColors.accent.withValues(alpha: 0.8),
                 fontSize: 14,
               ),
               filled: true,
-              fillColor: const Color(0xFF0A0E1A).withValues(alpha: 0.5),
+              fillColor: AppColors.darkBackground.withValues(alpha: 0.5),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                  color: const Color(0xFF39FF14).withValues(alpha: 0.5),
+                  color: AppColors.accent.withValues(alpha: 0.5),
                   width: 1.5,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: Color(0xFF39FF14),
+                  color: AppColors.accent,
                   width: 2,
                 ),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: Color(0xFFFF2CD6),
+                  color: AppColors.pink,
                   width: 1.5,
                 ),
               ),
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: Color(0xFFFF2CD6),
+                  color: AppColors.pink,
                   width: 2,
                 ),
               ),
               errorStyle: GoogleFonts.rammettoOne(
-                color: const Color(0xFFFF2CD6),
+                color: AppColors.pink,
                 fontSize: 12,
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
@@ -226,49 +225,46 @@ class _LoginScreenState extends State<LoginScreen> {
 
           TextFormField(
             controller: _passwordController,
-            style: GoogleFonts.rammettoOne(
-              color: Colors.white,
-              fontSize: 16,
-            ),
+            style: AppTextStyles.bodyLarge(true),
             obscureText: true,
             decoration: InputDecoration(
               labelText: 'Password',
               labelStyle: GoogleFonts.rammettoOne(
-                color: const Color(0xFF39FF14).withValues(alpha: 0.8),
+                color: AppColors.accent.withValues(alpha: 0.8),
                 fontSize: 14,
               ),
               filled: true,
-              fillColor: const Color(0xFF0A0E1A).withValues(alpha: 0.5),
+              fillColor: AppColors.darkBackground.withValues(alpha: 0.5),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                  color: const Color(0xFF39FF14).withValues(alpha: 0.5),
+                  color: AppColors.accent.withValues(alpha: 0.5),
                   width: 1.5,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: Color(0xFF39FF14),
+                  color: AppColors.accent,
                   width: 2,
                 ),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: Color(0xFFFF2CD6),
+                  color: AppColors.pink,
                   width: 1.5,
                 ),
               ),
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: Color(0xFFFF2CD6),
+                  color: AppColors.pink,
                   width: 2,
                 ),
               ),
               errorStyle: GoogleFonts.rammettoOne(
-                color: const Color(0xFFFF2CD6),
+                color: AppColors.pink,
                 fontSize: 12,
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
@@ -288,22 +284,22 @@ class _LoginScreenState extends State<LoginScreen> {
             child: ElevatedButton(
               onPressed: _isLoading ? null : _login,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF39FF14),
-                foregroundColor: Colors.black,
+                backgroundColor: AppColors.accent,
+                foregroundColor: AppColors.darkBackground,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
                 elevation: 8,
-                shadowColor: const Color(0xFF39FF14).withValues(alpha: 0.5),
+                shadowColor: AppColors.accent.withValues(alpha: 0.5),
               ),
               child: _isLoading
-                  ? const CircularProgressIndicator(color: Colors.black)
+                  ? const CircularProgressIndicator(color: AppColors.darkBackground)
                   : Text(
                 'Login',
                 style: GoogleFonts.rammettoOne(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: AppColors.darkBackground,
                 ),
               ),
             ),
@@ -371,10 +367,10 @@ class NeonToggle extends StatelessWidget {
                 height: 34,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white,
+                  color: AppColors.darkText,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
+                      color: AppColors.darkBackground.withValues(alpha: 0.3),
                       blurRadius: 8,
                       spreadRadius: 1,
                     )
@@ -386,13 +382,13 @@ class NeonToggle extends StatelessWidget {
               child: Text(
                 (value ? activeLabel : inactiveLabel).toUpperCase(),
                 style: GoogleFonts.rammettoOne(
-                  color: Colors.white,
+                  color: AppColors.darkText,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                   letterSpacing: 1.2,
                   shadows: const [
                     Shadow(
-                      color: Colors.black54,
+                      color: AppColors.darkBackground,
                       blurRadius: 4,
                     ),
                   ],

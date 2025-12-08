@@ -1,7 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import '../help_functions/app_colors.dart';
+import '../help_functions/app_text_styles.dart';
 import '../help_functions/theme_provider.dart';
 
 class SearchScreen extends StatelessWidget {
@@ -10,8 +11,8 @@ class SearchScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    final backgroundColor = isDark ? const Color(0xFF0A0E1A) : Colors.grey[50]!;
-    final textColor = isDark ? Colors.white : Colors.black87;
+    final backgroundColor = isDark ? AppColors.darkBackground : AppColors.lightBackground;
+    final textColor = isDark ? AppColors.darkText : AppColors.lightText;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -22,8 +23,8 @@ class SearchScreen extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF0A0E1A),
-              Color(0xFF050816),
+              AppColors.darkBackground,
+              AppColors.darkBackgroundGradient,
             ],
           ),
         )
@@ -36,8 +37,10 @@ class SearchScreen extends StatelessWidget {
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
                 child: Row(
                   children: [
-                    const Image(
-                      image: AssetImage('assets/logo-color.png'),
+                    Image(
+                      image: AssetImage(
+                          isDark ? 'assets/logo-dark-mode.png' : 'assets/logo-light-mode.png'
+                      ),
                       height: 40,
                     ),
                     const Spacer(),
@@ -69,10 +72,7 @@ class SearchScreen extends StatelessWidget {
                       const SizedBox(height: 16),
                       Text(
                         'Search coming soon',
-                        style: GoogleFonts.rammettoOne(
-                          color: textColor.withValues(alpha: 0.6),
-                          fontSize: 16,
-                        ),
+                        style: AppTextStyles.bodyLarge(isDark)
                       ),
                     ],
                   ),
@@ -103,13 +103,13 @@ class SearchScreen extends StatelessWidget {
               break;
           }
         },
-        backgroundColor: isDark ? const Color(0xFF0F1520) : Colors.white,
-        selectedItemColor: const Color(0xFF22E3FF),
+        backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+        selectedItemColor: isDark ? AppColors.primary : AppColors.primaryDark,
         unselectedItemColor: isDark
-            ? Colors.white.withValues(alpha: 0.5)
-            : Colors.black.withValues(alpha: 0.5),
-        selectedLabelStyle: GoogleFonts.rammettoOne(fontSize: 12),
-        unselectedLabelStyle: GoogleFonts.rammettoOne(fontSize: 12),
+            ? AppColors.darkText.withValues(alpha: 0.5)
+            : AppColors.lightText.withValues(alpha: 0.5),
+        selectedLabelStyle: AppTextStyles.bodySmall(isDark),
+        unselectedLabelStyle: AppTextStyles.bodySmall(isDark),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),

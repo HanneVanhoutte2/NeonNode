@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:project/help_functions/app_colors.dart';
+import 'package:project/help_functions/app_text_styles.dart';
 import 'package:provider/provider.dart';
 import '../help_functions/theme_provider.dart';
 
@@ -12,6 +14,7 @@ class PostDetailScreen extends StatefulWidget {
   final String imageUrl;
   final Timestamp? createdAt;
   final bool isDark;
+  final String avatarUrl;
 
   const PostDetailScreen({
     required this.postId,
@@ -20,6 +23,7 @@ class PostDetailScreen extends StatefulWidget {
     required this.imageUrl,
     required this.createdAt,
     required this.isDark,
+    required this.avatarUrl,
     super.key,
   });
 
@@ -51,7 +55,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           .doc(widget.authorId)
           .get();
 
-      if (!mounted) return; // ✅ Check before setState
+      if (!mounted) return;
 
       if (doc.exists) {
         setState(() {
@@ -65,7 +69,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         });
       }
     } catch (e) {
-      if (!mounted) return; // ✅ Check before setState
+      if (!mounted) return;
 
       setState(() {
         _username = 'Anonymous';
@@ -94,20 +98,20 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         'commentCount': FieldValue.increment(1),
       });
 
-      if (!mounted) return; // ✅ Check before clearing and unfocus
+      if (!mounted) return;
 
       _commentController.clear();
       FocusScope.of(context).unfocus();
     } catch (e) {
-      if (!mounted) return; // ✅ Check before showing SnackBar
+      if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             'Failed to add comment',
-            style: GoogleFonts.rammettoOne(fontSize: 14),
+            style: AppTextStyles.bodyMedium(widget.isDark)
           ),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
         ),
       );
     }
@@ -133,14 +137,14 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    final backgroundColor = isDark ? const Color(0xFF0A0E1A) : Colors.grey[50]!;
-    final textColor = isDark ? Colors.white : Colors.black87;
+    final backgroundColor = isDark ? AppColors.darkBackground : AppColors.lightBackground;
+    final textColor = isDark ? AppColors.darkText : AppColors.lightText;
     final cardColor = isDark
-        ? const Color(0xFF0F1520).withValues(alpha: 0.6)
-        : Colors.white;
+        ? AppColors.darkCard.withValues(alpha: 0.6)
+        : AppColors.lightCard.withValues(alpha: 0.6);
     final borderColor = isDark
-        ? const Color(0xFF22E3FF).withValues(alpha: 0.3)
-        : Colors.grey[300]!;
+        ? AppColors.primary.withValues(alpha: 0.3)
+        : AppColors.primaryDark.withValues(alpha: 0.3);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -151,8 +155,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF0A0E1A),
-              Color(0xFF050816),
+              AppColors.darkBackground,
+              AppColors.darkBackgroundGradient,
             ],
           ),
         )
@@ -160,7 +164,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // Custom header
               Padding(
                 padding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
@@ -170,8 +173,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       onPressed: () => Navigator.pop(context),
                       icon: Icon(Icons.arrow_back, color: textColor),
                     ),
-                    const Image(
-                      image: AssetImage('assets/logo-color.png'),
+                    Image(
+                      image: AssetImage(
+                          isDark ? 'assets/logo-dark-mode.png' : 'assets/logo-light-mode.png'
+                      ),
                       height: 40,
                     ),
                     const Spacer(),
@@ -197,7 +202,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Post content
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -206,8 +210,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           border: Border.all(color: borderColor, width: 1),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF22E3FF)
-                                  .withValues(alpha: isDark ? 0.1 : 0.05),
+                              color: isDark ?
+                              AppColors.primary.withValues(alpha: 0.1 ) :
+                              AppColors.primaryDark.withValues(alpha: 0.1 ),
                               blurRadius: 10,
                               spreadRadius: 1,
                             ),
@@ -220,21 +225,16 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               children: [
                                 CircleAvatar(
                                   radius: 20,
-                                  backgroundColor: const Color(0xFF8A00C4),
-                                  child: Text(
-                                    _isLoading
-                                        ? '?'
-                                        : _username.isNotEmpty
-                                        ? _username
-                                        .substring(0, 1)
-                                        .toUpperCase()
-                                        : 'A',
-                                    style: GoogleFonts.rammettoOne(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
+                                  backgroundColor: isDark ? AppColors.secondary : AppColors.secondaryDark,
+                                  backgroundImage: widget.avatarUrl.isNotEmpty
+                                      ? NetworkImage(widget.avatarUrl)
+                                      : null,
+                                  child: widget.avatarUrl.isEmpty
+                                      ? Text(
+                                    _isLoading ? '?' : _username.substring(0, 1).toUpperCase(),
+                                    style: AppTextStyles.bodyMedium(true),
+                                  )
+                                      : null,
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
@@ -244,19 +244,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                     children: [
                                       Text(
                                         _isLoading ? 'Loading...' : _username,
-                                        style: GoogleFonts.rammettoOne(
-                                          color: textColor,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15,
-                                        ),
+                                        style: AppTextStyles.bodyMedium(isDark),
                                       ),
                                       Text(
                                         _formatTime(widget.createdAt),
-                                        style: GoogleFonts.rammettoOne(
-                                          color:
-                                          textColor.withValues(alpha: 0.6),
-                                          fontSize: 12,
-                                        ),
+                                        style: AppTextStyles.bodySmall(isDark),
                                       ),
                                     ],
                                   ),
@@ -266,10 +258,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                             const SizedBox(height: 12),
                             Text(
                               widget.text,
-                              style: GoogleFonts.rammettoOne(
-                                color: textColor,
-                                fontSize: 16,
-                              ),
+                              style: AppTextStyles.bodyLarge(isDark),
                             ),
                             if (widget.imageUrl.isNotEmpty) ...[
                               const SizedBox(height: 12),
@@ -282,7 +271,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                   errorBuilder: (context, error, stackTrace) =>
                                       Container(
                                         height: 200,
-                                        color: Colors.grey[300],
+                                        color: isDark ? AppColors.darkCard : AppColors.lightCard,
                                         child: Center(
                                           child: Column(
                                             mainAxisAlignment: MainAxisAlignment.center,
@@ -291,7 +280,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                               const SizedBox(height: 8),
                                               Text(
                                                 'Image not available',
-                                                style: GoogleFonts.rammettoOne(fontSize: 12),
+                                                style: AppTextStyles.bodySmall(isDark),
                                               ),
                                             ],
                                           ),
@@ -306,11 +295,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       const SizedBox(height: 24),
                       Text(
                         'Comments',
-                        style: GoogleFonts.rammettoOne(
-                          color: textColor,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: AppTextStyles.bodyLarge(isDark),
                       ),
                       const SizedBox(height: 12),
 
@@ -326,18 +311,15 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           if (snapshot.hasError) {
                             return Text(
                               'Error loading comments',
-                              style: GoogleFonts.rammettoOne(
-                                color: textColor,
-                                fontSize: 14,
-                              ),
+                              style: AppTextStyles.bodyMedium(isDark),
                             );
                           }
 
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
-                            return const Center(
+                            return Center(
                               child: CircularProgressIndicator(
-                                color: Color(0xFF22E3FF),
+                                color: isDark ? AppColors.primary : AppColors.primaryDark,
                               ),
                             );
                           }
@@ -346,10 +328,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               snapshot.data!.docs.isEmpty) {
                             return Text(
                               'No comments yet. Be the first to comment!',
-                              style: GoogleFonts.rammettoOne(
-                                color: textColor.withValues(alpha: 0.6),
-                                fontSize: 14,
-                              ),
+                              style: AppTextStyles.bodyMedium(isDark),
                             );
                           }
 
@@ -366,7 +345,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                 authorId: comment['authorId'] ?? '',
                                 text: comment['text'] ?? '',
                                 createdAt: comment['createdAt'] as Timestamp?,
-                                isDark: isDark,
+                                isDark: isDark, avatarUrl: widget.avatarUrl,
                               );
                             },
                           );
@@ -377,11 +356,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 ),
               ),
 
-              // Add comment input
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF0F1520) : Colors.white,
+                  color: isDark ? AppColors.darkBackground : AppColors.lightBackground,
                   border: Border(
                     top: BorderSide(
                       color: borderColor,
@@ -406,8 +384,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           ),
                           filled: true,
                           fillColor: isDark
-                              ? const Color(0xFF0A0E1A).withValues(alpha: 0.5)
-                              : Colors.grey[100],
+                              ? AppColors.darkBackground.withValues(alpha: 0.5)
+                              : AppColors.lightBackground.withValues(alpha: 0.5),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(24),
                             borderSide: BorderSide.none,
@@ -423,7 +401,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     IconButton(
                       onPressed: _addComment,
                       icon: const Icon(Icons.send),
-                      color: const Color(0xFF22E3FF),
+                      color: isDark ? AppColors.primary : AppColors.primaryDark,
                     ),
                   ],
                 ),
@@ -441,12 +419,14 @@ class CommentCard extends StatefulWidget {
   final String text;
   final Timestamp? createdAt;
   final bool isDark;
+  final String avatarUrl;
 
   const CommentCard({
     required this.authorId,
     required this.text,
     required this.createdAt,
     required this.isDark,
+    required this.avatarUrl,
     super.key,
   });
 
@@ -471,7 +451,7 @@ class _CommentCardState extends State<CommentCard> {
           .doc(widget.authorId)
           .get();
 
-      if (!mounted) return; // ✅ Check before setState
+      if (!mounted) return;
 
       if (doc.exists) {
         setState(() {
@@ -513,35 +493,31 @@ class _CommentCardState extends State<CommentCard> {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = widget.isDark ? Colors.white : Colors.black87;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: widget.isDark
-            ? const Color(0xFF0F1520).withValues(alpha: 0.3)
-            : Colors.grey[100],
+            ? AppColors.darkBackground.withValues(alpha: 0.3)
+            : AppColors.lightBackground.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CircleAvatar(
-            radius: 16,
-            backgroundColor: const Color(0xFF8A00C4),
-            child: Text(
-              _isLoading
-                  ? '?'
-                  : _username.isNotEmpty
-                  ? _username.substring(0, 1).toUpperCase()
-                  : 'A',
-              style: GoogleFonts.rammettoOne(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
-            ),
+            radius: 20,
+            backgroundColor: widget.isDark ? AppColors.secondary : AppColors.secondaryDark,
+            backgroundImage: widget.avatarUrl.isNotEmpty
+                ? NetworkImage(widget.avatarUrl)
+                : null,
+            child: widget.avatarUrl.isEmpty
+                ? Text(
+              _isLoading ? '?' : _username.substring(0, 1).toUpperCase(),
+              style: AppTextStyles.bodyMedium(true),
+            )
+                : null,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -552,29 +528,19 @@ class _CommentCardState extends State<CommentCard> {
                   children: [
                     Text(
                       _isLoading ? 'Loading...' : _username,
-                      style: GoogleFonts.rammettoOne(
-                        color: textColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
+                      style: AppTextStyles.bodyMedium(widget.isDark),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       _formatTime(widget.createdAt),
-                      style: GoogleFonts.rammettoOne(
-                        color: textColor.withValues(alpha: 0.5),
-                        fontSize: 11,
-                      ),
+                      style: AppTextStyles.bodySmall(widget.isDark),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Text(
                   widget.text,
-                  style: GoogleFonts.rammettoOne(
-                    color: textColor,
-                    fontSize: 14,
-                  ),
+                  style: AppTextStyles.bodyMedium(widget.isDark),
                 ),
               ],
             ),

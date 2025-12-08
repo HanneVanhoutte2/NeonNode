@@ -2,11 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:project/screens/post_detail_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:project/firebase_options.dart';
-import '../help_functions/theme_provider.dart';
+import 'package:project/help_functions/theme_provider.dart';
+import 'package:project/help_functions/app_colors.dart';
+import 'package:project/help_functions/app_text_styles.dart';
 import 'package:project/screens/create_post_screen.dart';
 import 'package:project/screens/login_screen.dart';
 import 'package:project/screens/register_screen.dart';
@@ -79,7 +80,7 @@ class _FeedScreenState extends State<FeedScreen> {
         SnackBar(
           content: Text(
             'You must be logged in to post',
-            style: GoogleFonts.rammettoOne(fontSize: 14),
+            style: AppTextStyles.bodyMedium(false),
           ),
         ),
       );
@@ -108,8 +109,7 @@ class _FeedScreenState extends State<FeedScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    final backgroundColor = isDark ? const Color(0xFF0A0E1A) : Colors.grey[50]!;
-    final textColor = isDark ? Colors.white : Colors.black87;
+    final backgroundColor = isDark ? AppColors.darkBackground : AppColors.lightBackground;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -120,8 +120,8 @@ class _FeedScreenState extends State<FeedScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF0A0E1A),
-              Color(0xFF050816),
+              AppColors.darkBackground,
+              AppColors.darkBackgroundGradient,
             ],
           ),
         )
@@ -130,23 +130,23 @@ class _FeedScreenState extends State<FeedScreen> {
           child: Column(
             children: [
               Padding(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
                 child: Row(
                   children: [
-                    const Image(
-                      image: AssetImage('assets/logo-color.png'),
+                    Image(
+                      image: AssetImage(
+                          isDark ? 'assets/logo-dark-mode.png' : 'assets/logo-light-mode.png'
+                      ),
                       height: 40,
                     ),
                     const Spacer(),
                     IconButton(
                       onPressed: () {
-                        Provider.of<ThemeProvider>(context, listen: false)
-                            .toggleTheme();
+                        Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
                       },
                       icon: Icon(
                         isDark ? Icons.light_mode : Icons.dark_mode,
-                        color: textColor,
+                        color: isDark ? AppColors.darkText : AppColors.lightText,
                       ),
                       tooltip: isDark ? 'Light Mode' : 'Dark Mode',
                     ),
@@ -165,18 +165,15 @@ class _FeedScreenState extends State<FeedScreen> {
                       return Center(
                         child: Text(
                           'Error loading posts',
-                          style: GoogleFonts.rammettoOne(
-                            color: textColor,
-                            fontSize: 16,
-                          ),
+                          style: AppTextStyles.bodyLarge(isDark),
                         ),
                       );
                     }
 
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
+                      return Center(
                         child: CircularProgressIndicator(
-                          color: Color(0xFF22E3FF),
+                          color: isDark ? AppColors.primary : AppColors.primaryDark,
                         ),
                       );
                     }
@@ -189,15 +186,16 @@ class _FeedScreenState extends State<FeedScreen> {
                             Icon(
                               Icons.post_add,
                               size: 64,
-                              color: textColor.withValues(alpha: 0.3),
+                              color: (isDark ? AppColors.darkText : AppColors.lightText)
+                                  .withValues(alpha: 0.3),
                             ),
                             const SizedBox(height: 16),
                             Text(
                               'No posts yet.\nBe the first to post!',
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.rammettoOne(
-                                color: textColor.withValues(alpha: 0.6),
-                                fontSize: 16,
+                              style: AppTextStyles.bodyLarge(isDark).copyWith(
+                                color: (isDark ? AppColors.darkText : AppColors.lightText)
+                                    .withValues(alpha: 0.6),
                               ),
                             ),
                           ],
@@ -243,13 +241,12 @@ class _FeedScreenState extends State<FeedScreen> {
         type: BottomNavigationBarType.fixed,
         currentIndex: 0,
         onTap: _onNavTap,
-        backgroundColor: isDark ? const Color(0xFF0F1520) : Colors.white,
-        selectedItemColor: const Color(0xFF22E3FF),
-        unselectedItemColor: isDark
-            ? Colors.white.withValues(alpha: 0.5)
-            : Colors.black.withValues(alpha: 0.5),
-        selectedLabelStyle: GoogleFonts.rammettoOne(fontSize: 12),
-        unselectedLabelStyle: GoogleFonts.rammettoOne(fontSize: 12),
+        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+        selectedItemColor: isDark ? AppColors.primary : AppColors.primaryDark,
+        unselectedItemColor: (isDark ? AppColors.darkText : AppColors.lightText)
+            .withValues(alpha: 0.5),
+        selectedLabelStyle: AppTextStyles.caption(isDark),
+        unselectedLabelStyle: AppTextStyles.caption(isDark),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -384,7 +381,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
         _isLiked = likeDoc.exists;
       });
     } catch (e) {
-      // Add error
+      // Handle error
     }
   }
 
@@ -435,9 +432,9 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
           SnackBar(
             content: Text(
               'Failed to update like',
-              style: GoogleFonts.rammettoOne(fontSize: 14),
+              style: AppTextStyles.bodyMedium(false),
             ),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -455,6 +452,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
           imageUrl: widget.imageUrl,
           createdAt: widget.createdAt,
           isDark: widget.isDark,
+          avatarUrl: _avatarUrl,
         ),
       ),
     );
@@ -480,15 +478,12 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     final cardColor = widget.isDark
-        ? const Color(0xFF0F1520).withValues(alpha: 0.6)
-        : Colors.white;
+        ? AppColors.darkCard.withValues(alpha: 0.6)
+        : AppColors.lightCard.withValues(alpha: 0.6);
+
     final borderColor = widget.isDark
-        ? const Color(0xFF22E3FF).withValues(alpha: 0.3)
-        : Colors.grey[300]!;
-    final textColor = widget.isDark ? Colors.white : Colors.black87;
-    final subtextColor = widget.isDark
-        ? Colors.white.withValues(alpha: 0.6)
-        : Colors.black.withValues(alpha: 0.6);
+        ? AppColors.primary.withValues(alpha: 0.5)
+        : AppColors.primaryDark.withValues(alpha: 0.4);
 
     return GestureDetector(
       onTap: _navigateToPostDetail,
@@ -499,13 +494,16 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
         decoration: BoxDecoration(
           color: cardColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: borderColor, width: 1),
+          border: Border.all(
+            color: borderColor,
+            width: 2,
+          ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF22E3FF)
-                  .withValues(alpha: widget.isDark ? 0.1 : 0.05),
-              blurRadius: 10,
-              spreadRadius: 1,
+              color: (widget.isDark ? AppColors.primary : AppColors.secondary)
+                  .withValues(alpha: widget.isDark ? 0.15 : 0.1),
+              blurRadius: 12,
+              spreadRadius: 2,
             ),
           ],
         ),
@@ -516,7 +514,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
               children: [
                 CircleAvatar(
                   radius: 20,
-                  backgroundColor: const Color(0xFF8A00C4),
+                  backgroundColor: widget.isDark ? AppColors.secondary : AppColors.secondaryDark,
                   backgroundImage: _avatarUrl.isNotEmpty
                       ? NetworkImage(_avatarUrl)
                       : null,
@@ -527,10 +525,9 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                         : _username.isNotEmpty
                         ? _username.substring(0, 1).toUpperCase()
                         : 'A',
-                    style: GoogleFonts.rammettoOne(
+                    style: AppTextStyles.bodyLarge(false).copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
                     ),
                   )
                       : null,
@@ -542,18 +539,11 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                     children: [
                       Text(
                         _isLoading ? 'Loading...' : _username,
-                        style: GoogleFonts.rammettoOne(
-                          color: textColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
+                        style: AppTextStyles.username(widget.isDark),
                       ),
                       Text(
                         _formatTime(widget.createdAt),
-                        style: GoogleFonts.rammettoOne(
-                          color: subtextColor,
-                          fontSize: 12,
-                        ),
+                        style: AppTextStyles.timestamp(widget.isDark),
                       ),
                     ],
                   ),
@@ -563,10 +553,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
             const SizedBox(height: 12),
             Text(
               widget.text,
-              style: GoogleFonts.rammettoOne(
-                color: textColor,
-                fontSize: 16,
-              ),
+              style: AppTextStyles.bodyLarge(widget.isDark),
             ),
             if (widget.imageUrl.isNotEmpty) ...[
               const SizedBox(height: 12),
@@ -584,9 +571,9 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                       return Container(
                         height: 200,
                         color: Colors.grey[300],
-                        child: const Center(
+                        child: Center(
                           child: CircularProgressIndicator(
-                            color: Color(0xFF22E3FF),
+                            color: widget.isDark ? AppColors.primary : AppColors.primaryDark,
                           ),
                         ),
                       );
@@ -602,7 +589,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                             const SizedBox(height: 8),
                             Text(
                               'Image not available',
-                              style: GoogleFonts.rammettoOne(fontSize: 12),
+                              style: AppTextStyles.caption(widget.isDark),
                             ),
                           ],
                         ),
@@ -621,35 +608,29 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                     onPressed: _toggleLike,
                     icon: Icon(
                       _isLiked ? Icons.favorite : Icons.favorite_border,
-                      color: _isLiked ? Colors.red : textColor,
+                      color: _isLiked
+                          ? Colors.red
+                          : (widget.isDark ? AppColors.darkText : AppColors.lightText),
                     ),
                     iconSize: 24,
                   ),
                 ),
                 Text(
                   _likeCount.toString(),
-                  style: GoogleFonts.rammettoOne(
-                    color: textColor,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: AppTextStyles.label(widget.isDark),
                 ),
                 const SizedBox(width: 16),
                 IconButton(
                   onPressed: _navigateToPostDetail,
                   icon: Icon(
                     Icons.comment_outlined,
-                    color: textColor,
+                    color: widget.isDark ? AppColors.darkText : AppColors.lightText,
                   ),
                   iconSize: 24,
                 ),
                 Text(
                   _commentCount.toString(),
-                  style: GoogleFonts.rammettoOne(
-                    color: textColor,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: AppTextStyles.label(widget.isDark),
                 ),
               ],
             ),
