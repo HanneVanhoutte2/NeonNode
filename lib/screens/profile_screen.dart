@@ -324,7 +324,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _changePassword() async {
     final isDark = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
-
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null || currentUser.email == null) return;
 
@@ -421,7 +420,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      // Profile header with avatar
                       Stack(
                         children: [
                           CircleAvatar(
@@ -495,7 +493,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Stats cards (clickable)
                       Row(
                         children: [
                           Expanded(
@@ -575,7 +572,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Settings options
                       Container(
                         decoration: BoxDecoration(
                           color: cardColor,
@@ -639,7 +635,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Logout button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
@@ -1063,17 +1058,44 @@ class UserCommentsScreen extends StatelessWidget {
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       return Center(
-                        child: Text(
-                          'Error loading comments',
-                          style: AppTextStyles.bodyLarge(isDark),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.error,
+                              size: 64,
+                              color: AppColors.error,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Error loading comments',
+                              style: AppTextStyles.bodyLarge(isDark),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '${snapshot.error}',
+                              style: AppTextStyles.caption(isDark),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
                       );
                     }
 
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(
-                        child: CircularProgressIndicator(
-                          color: isDark ? AppColors.primary : AppColors.primaryDark,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(
+                              color: isDark ? AppColors.primary : AppColors.primaryDark,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Loading comments...',
+                              style: AppTextStyles.bodyMedium(isDark),
+                            ),
+                          ],
                         ),
                       );
                     }
@@ -1110,6 +1132,7 @@ class UserCommentsScreen extends StatelessWidget {
                       itemCount: comments.length,
                       itemBuilder: (context, index) {
                         final comment = comments[index];
+
                         return Container(
                           margin: const EdgeInsets.only(bottom: 12),
                           padding: const EdgeInsets.all(16),
@@ -1180,25 +1203,45 @@ class UserCommentsScreen extends StatelessWidget {
   }
 
   Future<List<Map<String, dynamic>>> _fetchUserComments(String userId) async {
-    final posts = await FirebaseFirestore.instance.collection('posts').get();
-    final List<Map<String, dynamic>> userComments = [];
+    try {
+      final posts = await FirebaseFirestore.instance.collection('posts').get();
+      final List<Map<String, dynamic>> userComments = [];
 
-    for (var post in posts.docs) {
-      final comments = await FirebaseFirestore.instance
-          .collection('posts')
-          .doc(post.id)
-          .collection('comments')
-          .where('authorId', isEqualTo: userId)
-          .orderBy('createdAt', descending: true)
-          .get();
+      for (var post in posts.docs) {
+        final postId = post.id;
+        final postText = post.data()['text'] ?? '';
 
-      for (var comment in comments.docs) {
-        final commentData = Map<String, dynamic>.from(comment.data());
-        commentData['postPreview'] = (post.data()['text'] ?? '').toString();
-        userComments.add(commentData);
+        try {
+          final comments = await FirebaseFirestore.instance
+              .collection('posts')
+              .doc(postId)
+              .collection('comments')
+              .where('authorId', isEqualTo: userId)
+              .orderBy('createdAt', descending: true)
+              .get();
+
+          for (var comment in comments.docs) {
+            final commentData = Map<String, dynamic>.from(comment.data());
+            commentData['postPreview'] = postText;
+            commentData['commentId'] = comment.id;
+            commentData['postId'] = postId;
+            userComments.add(commentData);
+          }
+        } catch (e) {
+          // Silently continue on error
+        }
       }
-    }
 
-    return userComments;
+      userComments.sort((a, b) {
+        final aTime = a['createdAt'] as Timestamp?;
+        final bTime = b['createdAt'] as Timestamp?;
+        if (aTime == null || bTime == null) return 0;
+        return bTime.compareTo(aTime);
+      });
+
+      return userComments;
+    } catch (e) {
+      rethrow;
+    }
   }
 }
