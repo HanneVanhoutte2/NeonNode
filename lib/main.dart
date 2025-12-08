@@ -340,7 +340,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
           .doc(widget.authorId)
           .get();
 
-      if (!mounted) return; // ✅ Check before setState
+      if (!mounted) return;
 
       if (doc.exists) {
         setState(() {
@@ -356,7 +356,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
         });
       }
     } catch (e) {
-      if (!mounted) return; // ✅ Check before setState
+      if (!mounted) return;
 
       setState(() {
         _username = 'Anonymous';
@@ -378,13 +378,13 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
           .doc(currentUser.uid)
           .get();
 
-      if (!mounted) return; // ✅ Check before setState
+      if (!mounted) return;
 
       setState(() {
         _isLiked = likeDoc.exists;
       });
     } catch (e) {
-      // Handle error silently
+      // Add error
     }
   }
 
@@ -408,7 +408,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
           'likeCount': FieldValue.increment(-1),
         });
 
-        if (!mounted) return; // ✅ Check before setState
+        if (!mounted) return;
 
         setState(() {
           _isLiked = false;
@@ -422,7 +422,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
           'likeCount': FieldValue.increment(1),
         });
 
-        if (!mounted) return; // ✅ Check before setState
+        if (!mounted) return;
 
         setState(() {
           _isLiked = true;

@@ -779,7 +779,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-// User Posts Screen
 class UserPostsScreen extends StatelessWidget {
   final String userId;
   final String displayName;
@@ -834,6 +833,7 @@ class UserPostsScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
+
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
@@ -894,6 +894,7 @@ class UserPostsScreen extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final post = posts[index].data() as Map<String, dynamic>;
                         final postId = posts[index].id;
+
                         return PostListItem(
                           postId: postId,
                           text: post['text'] ?? '',
@@ -916,7 +917,6 @@ class UserPostsScreen extends StatelessWidget {
   }
 }
 
-// User Comments Screen
 class UserCommentsScreen extends StatelessWidget {
   final String userId;
   final String displayName;
@@ -1126,7 +1126,6 @@ class UserCommentsScreen extends StatelessWidget {
   }
 }
 
-// Post List Item Widget
 class PostListItem extends StatelessWidget {
   final String postId;
   final String text;

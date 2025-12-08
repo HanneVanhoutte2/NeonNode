@@ -170,7 +170,7 @@ class _LoginScreenState extends State<LoginScreen> {
             keyboardType: TextInputType.emailAddress,
             autocorrect: false,
             style: GoogleFonts.rammettoOne(
-              color: Colors.black,
+              color: Colors.white,
               fontSize: 16,
             ),
             decoration: InputDecoration(
