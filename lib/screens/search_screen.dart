@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../help_functions/theme_provider.dart';
 
@@ -68,7 +69,7 @@ class SearchScreen extends StatelessWidget {
                       const SizedBox(height: 16),
                       Text(
                         'Search coming soon',
-                        style: TextStyle(
+                        style: GoogleFonts.rammettoOne(
                           color: textColor.withValues(alpha: 0.6),
                           fontSize: 16,
                         ),
@@ -107,6 +108,8 @@ class SearchScreen extends StatelessWidget {
         unselectedItemColor: isDark
             ? Colors.white.withValues(alpha: 0.5)
             : Colors.black.withValues(alpha: 0.5),
+        selectedLabelStyle: GoogleFonts.rammettoOne(fontSize: 12),
+        unselectedLabelStyle: GoogleFonts.rammettoOne(fontSize: 12),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),

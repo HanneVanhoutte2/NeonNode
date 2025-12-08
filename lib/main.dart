@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:project/screens/post_detail_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:project/firebase_options.dart';
@@ -75,7 +76,12 @@ class _FeedScreenState extends State<FeedScreen> {
     final user = _auth.currentUser;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You must be logged in to post')),
+        SnackBar(
+          content: Text(
+            'You must be logged in to post',
+            style: GoogleFonts.rammettoOne(fontSize: 14),
+          ),
+        ),
       );
       return;
     }
@@ -159,7 +165,10 @@ class _FeedScreenState extends State<FeedScreen> {
                       return Center(
                         child: Text(
                           'Error loading posts',
-                          style: TextStyle(color: textColor),
+                          style: GoogleFonts.rammettoOne(
+                            color: textColor,
+                            fontSize: 16,
+                          ),
                         ),
                       );
                     }
@@ -186,7 +195,7 @@ class _FeedScreenState extends State<FeedScreen> {
                             Text(
                               'No posts yet.\nBe the first to post!',
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: GoogleFonts.rammettoOne(
                                 color: textColor.withValues(alpha: 0.6),
                                 fontSize: 16,
                               ),
@@ -223,7 +232,6 @@ class _FeedScreenState extends State<FeedScreen> {
                         );
                       },
                     );
-
                   },
                 ),
               ),
@@ -240,6 +248,8 @@ class _FeedScreenState extends State<FeedScreen> {
         unselectedItemColor: isDark
             ? Colors.white.withValues(alpha: 0.5)
             : Colors.black.withValues(alpha: 0.5),
+        selectedLabelStyle: GoogleFonts.rammettoOne(fontSize: 12),
+        unselectedLabelStyle: GoogleFonts.rammettoOne(fontSize: 12),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -330,6 +340,8 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
           .doc(widget.authorId)
           .get();
 
+      if (!mounted) return; // ✅ Check before setState
+
       if (doc.exists) {
         setState(() {
           _username = doc.data()?['displayName'] ?? 'Anonymous';
@@ -344,6 +356,8 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
         });
       }
     } catch (e) {
+      if (!mounted) return; // ✅ Check before setState
+
       setState(() {
         _username = 'Anonymous';
         _avatarUrl = '';
@@ -364,11 +378,13 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
           .doc(currentUser.uid)
           .get();
 
+      if (!mounted) return; // ✅ Check before setState
+
       setState(() {
         _isLiked = likeDoc.exists;
       });
     } catch (e) {
-      // Handle error
+      // Handle error silently
     }
   }
 
@@ -376,7 +392,11 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) return;
 
-    _animationController.forward().then((_) => _animationController.reverse());
+    _animationController.forward().then((_) {
+      if (mounted) {
+        _animationController.reverse();
+      }
+    });
 
     try {
       final postRef = FirebaseFirestore.instance.collection('posts').doc(widget.postId);
@@ -387,6 +407,9 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
         await postRef.update({
           'likeCount': FieldValue.increment(-1),
         });
+
+        if (!mounted) return; // ✅ Check before setState
+
         setState(() {
           _isLiked = false;
           _likeCount--;
@@ -398,13 +421,26 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
         await postRef.update({
           'likeCount': FieldValue.increment(1),
         });
+
+        if (!mounted) return; // ✅ Check before setState
+
         setState(() {
           _isLiked = true;
           _likeCount++;
         });
       }
     } catch (e) {
-      // Handle error
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Failed to update like',
+              style: GoogleFonts.rammettoOne(fontSize: 14),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -491,9 +527,10 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                         : _username.isNotEmpty
                         ? _username.substring(0, 1).toUpperCase()
                         : 'A',
-                    style: const TextStyle(
+                    style: GoogleFonts.rammettoOne(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
                   )
                       : null,
@@ -505,7 +542,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                     children: [
                       Text(
                         _isLoading ? 'Loading...' : _username,
-                        style: TextStyle(
+                        style: GoogleFonts.rammettoOne(
                           color: textColor,
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
@@ -513,9 +550,9 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                       ),
                       Text(
                         _formatTime(widget.createdAt),
-                        style: TextStyle(
+                        style: GoogleFonts.rammettoOne(
                           color: subtextColor,
-                          fontSize: 13,
+                          fontSize: 12,
                         ),
                       ),
                     ],
@@ -526,7 +563,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
             const SizedBox(height: 12),
             Text(
               widget.text,
-              style: TextStyle(
+              style: GoogleFonts.rammettoOne(
                 color: textColor,
                 fontSize: 16,
               ),
@@ -548,15 +585,27 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                         height: 200,
                         color: Colors.grey[300],
                         child: const Center(
-                          child: CircularProgressIndicator(),
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF22E3FF),
+                          ),
                         ),
                       );
                     },
                     errorBuilder: (context, error, stackTrace) => Container(
                       height: 200,
                       color: Colors.grey[300],
-                      child: const Center(
-                        child: Icon(Icons.broken_image, size: 48),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.broken_image, size: 48),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Image not available',
+                              style: GoogleFonts.rammettoOne(fontSize: 12),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -579,7 +628,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                 ),
                 Text(
                   _likeCount.toString(),
-                  style: TextStyle(
+                  style: GoogleFonts.rammettoOne(
                     color: textColor,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -596,7 +645,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                 ),
                 Text(
                   _commentCount.toString(),
-                  style: TextStyle(
+                  style: GoogleFonts.rammettoOne(
                     color: textColor,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,

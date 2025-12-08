@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -35,7 +36,12 @@ class _LoginScreenState extends State<LoginScreen> {
         if (querySnapshot.docs.isEmpty) {
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Username not found')),
+            SnackBar(
+              content: Text(
+                'Username not found',
+                style: GoogleFonts.rammettoOne(fontSize: 14),
+              ),
+            ),
           );
           setState(() => _isLoading = false);
           return;
@@ -54,12 +60,22 @@ class _LoginScreenState extends State<LoginScreen> {
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? 'Login failed')),
+        SnackBar(
+          content: Text(
+            e.message ?? 'Login failed',
+            style: GoogleFonts.rammettoOne(fontSize: 14),
+          ),
+        ),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('An error occurred')),
+        SnackBar(
+          content: Text(
+            'An error occurred',
+            style: GoogleFonts.rammettoOne(fontSize: 14),
+          ),
+        ),
       );
     } finally {
       if (mounted) {
@@ -90,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image(
+                  const Image(
                     image: AssetImage('assets/logo-color.png'),
                     height: 120,
                   ),
@@ -153,12 +169,15 @@ class _LoginScreenState extends State<LoginScreen> {
             controller: _emailOrUsernameController,
             keyboardType: TextInputType.emailAddress,
             autocorrect: false,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+            style: GoogleFonts.rammettoOne(
+              color: Colors.black,
+              fontSize: 16,
+            ),
             decoration: InputDecoration(
               labelText: 'Email or Username',
-              labelStyle: TextStyle(
+              labelStyle: GoogleFonts.rammettoOne(
                 color: const Color(0xFF39FF14).withValues(alpha: 0.8),
-                fontSize: 15,
+                fontSize: 14,
               ),
               filled: true,
               fillColor: const Color(0xFF0A0E1A).withValues(alpha: 0.5),
@@ -189,6 +208,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: Color(0xFFFF2CD6),
                   width: 2,
                 ),
+              ),
+              errorStyle: GoogleFonts.rammettoOne(
+                color: const Color(0xFFFF2CD6),
+                fontSize: 12,
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
             ),
@@ -203,13 +226,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
           TextFormField(
             controller: _passwordController,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+            style: GoogleFonts.rammettoOne(
+              color: Colors.white,
+              fontSize: 16,
+            ),
             obscureText: true,
             decoration: InputDecoration(
               labelText: 'Password',
-              labelStyle: TextStyle(
+              labelStyle: GoogleFonts.rammettoOne(
                 color: const Color(0xFF39FF14).withValues(alpha: 0.8),
-                fontSize: 15,
+                fontSize: 14,
               ),
               filled: true,
               fillColor: const Color(0xFF0A0E1A).withValues(alpha: 0.5),
@@ -240,6 +266,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: Color(0xFFFF2CD6),
                   width: 2,
                 ),
+              ),
+              errorStyle: GoogleFonts.rammettoOne(
+                color: const Color(0xFFFF2CD6),
+                fontSize: 12,
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
             ),
@@ -268,7 +298,14 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               child: _isLoading
                   ? const CircularProgressIndicator(color: Colors.black)
-                  : const Text('Login', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  : Text(
+                'Login',
+                style: GoogleFonts.rammettoOne(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
             ),
           ),
         ],
@@ -348,12 +385,12 @@ class NeonToggle extends StatelessWidget {
             Center(
               child: Text(
                 (value ? activeLabel : inactiveLabel).toUpperCase(),
-                style: const TextStyle(
+                style: GoogleFonts.rammettoOne(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                   letterSpacing: 1.2,
-                  shadows: [
+                  shadows: const [
                     Shadow(
                       color: Colors.black54,
                       blurRadius: 4,

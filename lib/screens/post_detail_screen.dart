@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../help_functions/theme_provider.dart';
 
@@ -50,6 +51,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           .doc(widget.authorId)
           .get();
 
+      if (!mounted) return; // ✅ Check before setState
+
       if (doc.exists) {
         setState(() {
           _username = doc.data()?['displayName'] ?? 'Anonymous';
@@ -62,6 +65,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         });
       }
     } catch (e) {
+      if (!mounted) return; // ✅ Check before setState
+
       setState(() {
         _username = 'Anonymous';
         _isLoading = false;
@@ -89,16 +94,22 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         'commentCount': FieldValue.increment(1),
       });
 
+      if (!mounted) return; // ✅ Check before clearing and unfocus
+
       _commentController.clear();
-      if (mounted) {
-        FocusScope.of(context).unfocus();
-      }
+      FocusScope.of(context).unfocus();
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to add comment')),
-        );
-      }
+      if (!mounted) return; // ✅ Check before showing SnackBar
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Failed to add comment',
+            style: GoogleFonts.rammettoOne(fontSize: 14),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -218,9 +229,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                         .substring(0, 1)
                                         .toUpperCase()
                                         : 'A',
-                                    style: const TextStyle(
+                                    style: GoogleFonts.rammettoOne(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
+                                      fontSize: 16,
                                     ),
                                   ),
                                 ),
@@ -232,7 +244,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                     children: [
                                       Text(
                                         _isLoading ? 'Loading...' : _username,
-                                        style: TextStyle(
+                                        style: GoogleFonts.rammettoOne(
                                           color: textColor,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 15,
@@ -240,10 +252,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                       ),
                                       Text(
                                         _formatTime(widget.createdAt),
-                                        style: TextStyle(
+                                        style: GoogleFonts.rammettoOne(
                                           color:
                                           textColor.withValues(alpha: 0.6),
-                                          fontSize: 13,
+                                          fontSize: 12,
                                         ),
                                       ),
                                     ],
@@ -254,7 +266,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                             const SizedBox(height: 12),
                             Text(
                               widget.text,
-                              style: TextStyle(
+                              style: GoogleFonts.rammettoOne(
                                 color: textColor,
                                 fontSize: 16,
                               ),
@@ -271,9 +283,18 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                       Container(
                                         height: 200,
                                         color: Colors.grey[300],
-                                        child: const Center(
-                                          child:
-                                          Icon(Icons.broken_image, size: 48),
+                                        child: Center(
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              const Icon(Icons.broken_image, size: 48),
+                                              const SizedBox(height: 8),
+                                              Text(
+                                                'Image not available',
+                                                style: GoogleFonts.rammettoOne(fontSize: 12),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                 ),
@@ -285,7 +306,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       const SizedBox(height: 24),
                       Text(
                         'Comments',
-                        style: TextStyle(
+                        style: GoogleFonts.rammettoOne(
                           color: textColor,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -303,24 +324,31 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                             .snapshots(),
                         builder: (context, snapshot) {
                           if (snapshot.hasError) {
-                            return Text('Error loading comments',
-                                style: TextStyle(color: textColor));
+                            return Text(
+                              'Error loading comments',
+                              style: GoogleFonts.rammettoOne(
+                                color: textColor,
+                                fontSize: 14,
+                              ),
+                            );
                           }
 
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return const Center(
-                                child: CircularProgressIndicator(
-                                  color: Color(0xFF22E3FF),
-                                ));
+                              child: CircularProgressIndicator(
+                                color: Color(0xFF22E3FF),
+                              ),
+                            );
                           }
 
                           if (!snapshot.hasData ||
                               snapshot.data!.docs.isEmpty) {
                             return Text(
                               'No comments yet. Be the first to comment!',
-                              style: TextStyle(
+                              style: GoogleFonts.rammettoOne(
                                 color: textColor.withValues(alpha: 0.6),
+                                fontSize: 14,
                               ),
                             );
                           }
@@ -366,11 +394,15 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     Expanded(
                       child: TextField(
                         controller: _commentController,
-                        style: TextStyle(color: textColor),
+                        style: GoogleFonts.rammettoOne(
+                          color: textColor,
+                          fontSize: 14,
+                        ),
                         decoration: InputDecoration(
                           hintText: 'Add a comment...',
-                          hintStyle: TextStyle(
+                          hintStyle: GoogleFonts.rammettoOne(
                             color: textColor.withValues(alpha: 0.5),
+                            fontSize: 14,
                           ),
                           filled: true,
                           fillColor: isDark
@@ -439,6 +471,8 @@ class _CommentCardState extends State<CommentCard> {
           .doc(widget.authorId)
           .get();
 
+      if (!mounted) return; // ✅ Check before setState
+
       if (doc.exists) {
         setState(() {
           _username = doc.data()?['displayName'] ?? 'Anonymous';
@@ -451,6 +485,8 @@ class _CommentCardState extends State<CommentCard> {
         });
       }
     } catch (e) {
+      if (!mounted) return; // ✅ Check before setState
+
       setState(() {
         _username = 'Anonymous';
         _isLoading = false;
@@ -500,7 +536,7 @@ class _CommentCardState extends State<CommentCard> {
                   : _username.isNotEmpty
                   ? _username.substring(0, 1).toUpperCase()
                   : 'A',
-              style: const TextStyle(
+              style: GoogleFonts.rammettoOne(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
@@ -516,7 +552,7 @@ class _CommentCardState extends State<CommentCard> {
                   children: [
                     Text(
                       _isLoading ? 'Loading...' : _username,
-                      style: TextStyle(
+                      style: GoogleFonts.rammettoOne(
                         color: textColor,
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
@@ -525,9 +561,9 @@ class _CommentCardState extends State<CommentCard> {
                     const SizedBox(width: 8),
                     Text(
                       _formatTime(widget.createdAt),
-                      style: TextStyle(
+                      style: GoogleFonts.rammettoOne(
                         color: textColor.withValues(alpha: 0.5),
-                        fontSize: 12,
+                        fontSize: 11,
                       ),
                     ),
                   ],
@@ -535,7 +571,7 @@ class _CommentCardState extends State<CommentCard> {
                 const SizedBox(height: 4),
                 Text(
                   widget.text,
-                  style: TextStyle(
+                  style: GoogleFonts.rammettoOne(
                     color: textColor,
                     fontSize: 14,
                   ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:project/screens/login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -44,12 +45,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? 'Registration failed')),
+        SnackBar(
+          content: Text(
+            e.message ?? 'Registration failed',
+            style: GoogleFonts.rammettoOne(fontSize: 14),
+          ),
+        ),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('An error occurred')),
+        SnackBar(
+          content: Text(
+            'An error occurred',
+            style: GoogleFonts.rammettoOne(fontSize: 14),
+          ),
+        ),
       );
     } finally {
       if (mounted) {
@@ -80,7 +91,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image(
+                  const Image(
                     image: AssetImage('assets/logo-color.png'),
                     height: 120,
                   ),
@@ -142,12 +153,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
           TextFormField(
             controller: _nameController,
             textCapitalization: TextCapitalization.words,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+            style: GoogleFonts.rammettoOne(
+              color: Colors.white,
+              fontSize: 16,
+            ),
             decoration: InputDecoration(
               labelText: 'Display Name',
-              labelStyle: TextStyle(
+              labelStyle: GoogleFonts.rammettoOne(
                 color: const Color(0xFF8A00C4).withValues(alpha: 0.8),
-                fontSize: 15,
+                fontSize: 14,
               ),
               filled: true,
               fillColor: const Color(0xFF0A0E1A).withValues(alpha: 0.5),
@@ -178,6 +192,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   color: Color(0xFFFF2CD6),
                   width: 2,
                 ),
+              ),
+              errorStyle: GoogleFonts.rammettoOne(
+                color: const Color(0xFFFF2CD6),
+                fontSize: 12,
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
             ),
@@ -193,12 +211,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
             autocorrect: false,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+            style: GoogleFonts.rammettoOne(
+              color: Colors.white,
+              fontSize: 16,
+            ),
             decoration: InputDecoration(
               labelText: 'Email',
-              labelStyle: TextStyle(
+              labelStyle: GoogleFonts.rammettoOne(
                 color: const Color(0xFF8A00C4).withValues(alpha: 0.8),
-                fontSize: 15,
+                fontSize: 14,
               ),
               filled: true,
               fillColor: const Color(0xFF0A0E1A).withValues(alpha: 0.5),
@@ -229,6 +250,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   color: Color(0xFFFF2CD6),
                   width: 2,
                 ),
+              ),
+              errorStyle: GoogleFonts.rammettoOne(
+                color: const Color(0xFFFF2CD6),
+                fontSize: 12,
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
             ),
@@ -242,13 +267,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
           TextFormField(
             controller: _passwordController,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+            style: GoogleFonts.rammettoOne(
+              color: Colors.white,
+              fontSize: 16,
+            ),
             obscureText: true,
             decoration: InputDecoration(
               labelText: 'Password',
-              labelStyle: TextStyle(
+              labelStyle: GoogleFonts.rammettoOne(
                 color: const Color(0xFF8A00C4).withValues(alpha: 0.8),
-                fontSize: 15,
+                fontSize: 14,
               ),
               filled: true,
               fillColor: const Color(0xFF0A0E1A).withValues(alpha: 0.5),
@@ -279,6 +307,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   color: Color(0xFFFF2CD6),
                   width: 2,
                 ),
+              ),
+              errorStyle: GoogleFonts.rammettoOne(
+                color: const Color(0xFFFF2CD6),
+                fontSize: 12,
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
             ),
@@ -292,13 +324,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
           TextFormField(
             controller: _confirmPasswordController,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+            style: GoogleFonts.rammettoOne(
+              color: Colors.white,
+              fontSize: 16,
+            ),
             obscureText: true,
             decoration: InputDecoration(
               labelText: 'Confirm Password',
-              labelStyle: TextStyle(
+              labelStyle: GoogleFonts.rammettoOne(
                 color: const Color(0xFF8A00C4).withValues(alpha: 0.8),
-                fontSize: 15,
+                fontSize: 14,
               ),
               filled: true,
               fillColor: const Color(0xFF0A0E1A).withValues(alpha: 0.5),
@@ -329,6 +364,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   color: Color(0xFFFF2CD6),
                   width: 2,
                 ),
+              ),
+              errorStyle: GoogleFonts.rammettoOne(
+                color: const Color(0xFFFF2CD6),
+                fontSize: 12,
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
             ),
@@ -357,7 +396,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               child: _isLoading
                   ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('Create Account', style: TextStyle(fontSize: 18)),
+                  : Text(
+                'Create Account',
+                style: GoogleFonts.rammettoOne(
+                  fontSize: 18,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
         ],
@@ -439,12 +484,12 @@ class NeonToggle extends StatelessWidget {
             Center(
               child: Text(
                 (value ? activeLabel : inactiveLabel).toUpperCase(),
-                style: const TextStyle(
+                style: GoogleFonts.rammettoOne(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                   letterSpacing: 1.2,
-                  shadows: [
+                  shadows: const [
                     Shadow(
                       color: Colors.black54,
                       blurRadius: 4,

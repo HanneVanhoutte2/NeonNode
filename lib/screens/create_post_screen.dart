@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../help_functions/theme_provider.dart';
@@ -24,8 +25,14 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
     final user = _auth.currentUser;
     if (user == null) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You must be logged in to post')),
+        SnackBar(
+          content: Text(
+            'You must be logged in to post',
+            style: GoogleFonts.rammettoOne(fontSize: 14),
+          ),
+        ),
       );
       return;
     }
@@ -40,6 +47,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         'text': _textController.text.trim(),
         'imageUrl': _imageUrlController.text.trim(),
         'createdAt': FieldValue.serverTimestamp(),
+        'likeCount': 0,
+        'commentCount': 0,
       });
 
       if (!mounted) return;
@@ -47,7 +56,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to create post')),
+        SnackBar(
+          content: Text(
+            'Failed to create post',
+            style: GoogleFonts.rammettoOne(fontSize: 14),
+          ),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
       if (mounted) {
@@ -158,15 +173,15 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                               TextFormField(
                                 controller: _textController,
                                 maxLines: 5,
-                                style: TextStyle(
+                                style: GoogleFonts.rammettoOne(
                                   color: textColor,
                                   fontSize: 16,
                                 ),
                                 decoration: InputDecoration(
                                   labelText: 'What\'s on your mind?',
-                                  labelStyle: TextStyle(
+                                  labelStyle: GoogleFonts.rammettoOne(
                                     color: labelColor,
-                                    fontSize: 15,
+                                    fontSize: 14,
                                   ),
                                   filled: true,
                                   fillColor: isDark
@@ -201,6 +216,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                       width: 2,
                                     ),
                                   ),
+                                  errorStyle: GoogleFonts.rammettoOne(
+                                    color: const Color(0xFFFF2CD6),
+                                    fontSize: 12,
+                                  ),
                                   contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 20,
                                     vertical: 18,
@@ -222,15 +241,15 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                               // Image URL field
                               TextFormField(
                                 controller: _imageUrlController,
-                                style: TextStyle(
+                                style: GoogleFonts.rammettoOne(
                                   color: textColor,
                                   fontSize: 16,
                                 ),
                                 decoration: InputDecoration(
                                   labelText: 'Image URL (optional)',
-                                  labelStyle: TextStyle(
+                                  labelStyle: GoogleFonts.rammettoOne(
                                     color: labelColor,
-                                    fontSize: 15,
+                                    fontSize: 14,
                                   ),
                                   filled: true,
                                   fillColor: isDark
@@ -285,12 +304,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                       strokeWidth: 3,
                                     ),
                                   )
-                                      : const Text(
+                                      : Text(
                                     'POST',
-                                    style: TextStyle(
+                                    style: GoogleFonts.rammettoOne(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                       letterSpacing: 1.5,
+                                      color: Colors.white,
                                     ),
                                   ),
                                 ),
@@ -320,7 +340,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               break;
             case 2:
               Navigator.pushReplacementNamed(context, '/search');
-
               break;
             case 3:
               Navigator.pushReplacementNamed(context, '/profile');
@@ -332,6 +351,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         unselectedItemColor: isDark
             ? Colors.white.withValues(alpha: 0.5)
             : Colors.black.withValues(alpha: 0.5),
+        selectedLabelStyle: GoogleFonts.rammettoOne(fontSize: 12),
+        unselectedLabelStyle: GoogleFonts.rammettoOne(fontSize: 12),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
