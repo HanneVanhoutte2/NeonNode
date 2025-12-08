@@ -342,7 +342,7 @@ class NeonToggle extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 350),
         curve: Curves.easeInOut,
-        width: 160,
+        width: 200,
         height: 46,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(23),
@@ -367,7 +367,7 @@ class NeonToggle extends StatelessWidget {
                 height: 34,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.darkText,
+                  color: AppColors.lightText,
                   boxShadow: [
                     BoxShadow(
                       color: AppColors.darkBackground.withValues(alpha: 0.3),
@@ -382,16 +382,10 @@ class NeonToggle extends StatelessWidget {
               child: Text(
                 (value ? activeLabel : inactiveLabel).toUpperCase(),
                 style: GoogleFonts.rammettoOne(
-                  color: AppColors.darkText,
+                  color: AppColors.lightText,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                   letterSpacing: 1.2,
-                  shadows: const [
-                    Shadow(
-                      color: AppColors.darkBackground,
-                      blurRadius: 4,
-                    ),
-                  ],
                 ),
               ),
             ),

@@ -439,7 +439,7 @@ class NeonToggle extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 350),
         curve: Curves.easeInOut,
-        width: 160,
+        width: 200,
         height: 46,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(23),
