@@ -108,8 +108,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Failed to add comment',
-            style: AppTextStyles.bodyMedium(widget.isDark)
+              'Failed to add comment',
+              style: AppTextStyles.bodyMedium(widget.isDark)
           ),
           backgroundColor: AppColors.error,
         ),
@@ -341,11 +341,16 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                             itemBuilder: (context, index) {
                               final comment = comments[index].data()
                               as Map<String, dynamic>;
+                              final commentId = comments[index].id;
+
                               return CommentCard(
+                                commentId: commentId,
+                                postId: widget.postId,
+                                postAuthorId: widget.authorId,
                                 authorId: comment['authorId'] ?? '',
                                 text: comment['text'] ?? '',
                                 createdAt: comment['createdAt'] as Timestamp?,
-                                isDark: isDark, avatarUrl: widget.avatarUrl,
+                                isDark: isDark,
                               );
                             },
                           );
@@ -415,18 +420,22 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 }
 
 class CommentCard extends StatefulWidget {
+  final String commentId;
+  final String postId;
+  final String postAuthorId;
   final String authorId;
   final String text;
   final Timestamp? createdAt;
   final bool isDark;
-  final String avatarUrl;
 
   const CommentCard({
+    required this.commentId,
+    required this.postId,
+    required this.postAuthorId,
     required this.authorId,
     required this.text,
     required this.createdAt,
     required this.isDark,
-    required this.avatarUrl,
     super.key,
   });
 
@@ -436,15 +445,16 @@ class CommentCard extends StatefulWidget {
 
 class _CommentCardState extends State<CommentCard> {
   String _username = '';
+  String _avatarUrl = '';
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchUsername();
+    _fetchUserData();
   }
 
-  Future<void> _fetchUsername() async {
+  Future<void> _fetchUserData() async {
     try {
       final doc = await FirebaseFirestore.instance
           .collection('users')
@@ -456,21 +466,110 @@ class _CommentCardState extends State<CommentCard> {
       if (doc.exists) {
         setState(() {
           _username = doc.data()?['displayName'] ?? 'Anonymous';
+          _avatarUrl = doc.data()?['avatarUrl'] ?? '';
           _isLoading = false;
         });
       } else {
         setState(() {
           _username = 'Anonymous';
+          _avatarUrl = '';
           _isLoading = false;
         });
       }
     } catch (e) {
-      if (!mounted) return; // ✅ Check before setState
+      if (!mounted) return;
 
       setState(() {
         _username = 'Anonymous';
+        _avatarUrl = '';
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _deleteComment() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: widget.isDark ? AppColors.darkCard : AppColors.lightCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: Text(
+          'Delete Comment?',
+          style: AppTextStyles.h4(widget.isDark),
+        ),
+        content: Text(
+          'This will permanently delete this comment.',
+          style: AppTextStyles.bodyMedium(widget.isDark),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(
+              'Cancel',
+              style: AppTextStyles.bodyMedium(widget.isDark),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              'Delete',
+              style: AppTextStyles.bodyMedium(false).copyWith(
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await FirebaseFirestore.instance
+            .collection('posts')
+            .doc(widget.postId)
+            .collection('comments')
+            .doc(widget.commentId)
+            .delete();
+
+        await FirebaseFirestore.instance
+            .collection('posts')
+            .doc(widget.postId)
+            .update({
+          'commentCount': FieldValue.increment(-1),
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Comment deleted successfully',
+                style: AppTextStyles.bodyMedium(false).copyWith(color: Colors.white),
+              ),
+              backgroundColor: widget.isDark ? AppColors.primary : AppColors.primaryDark,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Failed to delete comment',
+                style: AppTextStyles.bodyMedium(false).copyWith(color: Colors.white),
+              ),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
     }
   }
 
@@ -493,6 +592,13 @@ class _CommentCardState extends State<CommentCard> {
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    // Show delete button if:
+    // 1. User is the comment author OR
+    // 2. User is the post author (can moderate their post)
+    final canDelete = currentUser != null &&
+        (currentUser.uid == widget.authorId || currentUser.uid == widget.postAuthorId);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -509,10 +615,10 @@ class _CommentCardState extends State<CommentCard> {
           CircleAvatar(
             radius: 20,
             backgroundColor: widget.isDark ? AppColors.secondary : AppColors.secondaryDark,
-            backgroundImage: widget.avatarUrl.isNotEmpty
-                ? NetworkImage(widget.avatarUrl)
+            backgroundImage: _avatarUrl.isNotEmpty
+                ? NetworkImage(_avatarUrl)
                 : null,
-            child: widget.avatarUrl.isEmpty
+            child: _avatarUrl.isEmpty
                 ? Text(
               _isLoading ? '?' : _username.substring(0, 1).toUpperCase(),
               style: AppTextStyles.bodyMedium(true),
@@ -526,15 +632,31 @@ class _CommentCardState extends State<CommentCard> {
               children: [
                 Row(
                   children: [
-                    Text(
-                      _isLoading ? 'Loading...' : _username,
-                      style: AppTextStyles.bodyMedium(widget.isDark),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Text(
+                            _isLoading ? 'Loading...' : _username,
+                            style: AppTextStyles.bodyMedium(widget.isDark),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            _formatTime(widget.createdAt),
+                            style: AppTextStyles.bodySmall(widget.isDark),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      _formatTime(widget.createdAt),
-                      style: AppTextStyles.bodySmall(widget.isDark),
-                    ),
+                    if (canDelete)
+                      IconButton(
+                        onPressed: _deleteComment,
+                        icon: const Icon(Icons.delete),
+                        color: AppColors.error,
+                        iconSize: 20,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        tooltip: 'Delete comment',
+                      ),
                   ],
                 ),
                 const SizedBox(height: 4),
