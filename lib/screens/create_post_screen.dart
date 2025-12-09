@@ -200,19 +200,19 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                   errorBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
                                     borderSide: BorderSide(
-                                      color: isDark ? AppColors.pink : AppColors.pinkDark,
+                                      color: isDark ? AppColors.accent : AppColors.accentDark,
                                       width: 1.5,
                                     ),
                                   ),
                                   focusedErrorBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
                                     borderSide: BorderSide(
-                                      color: isDark ? AppColors.pink : AppColors.pinkDark,
+                                      color: isDark ? AppColors.accent : AppColors.accentDark,
                                       width: 2,
                                     ),
                                   ),
                                   errorStyle: AppTextStyles.caption(isDark).copyWith(
-                                    color: isDark ? AppColors.pink : AppColors.pinkDark,
+                                    color: isDark ? AppColors.accent : AppColors.accentDark,
                                   ),
                                   contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 20,

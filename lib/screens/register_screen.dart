@@ -185,19 +185,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: AppColors.pink,
+                  color: AppColors.accent,
                   width: 1.5,
                 ),
               ),
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: AppColors.pink,
+                  color: AppColors.accent,
                   width: 2,
                 ),
               ),
               errorStyle: GoogleFonts.rammettoOne(
-                color: AppColors.pink,
+                color: AppColors.accent,
                 fontSize: 12,
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
@@ -243,19 +243,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: AppColors.pink,
+                  color: AppColors.accent,
                   width: 1.5,
                 ),
               ),
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: AppColors.pink,
+                  color: AppColors.accent,
                   width: 2,
                 ),
               ),
               errorStyle: GoogleFonts.rammettoOne(
-                color: AppColors.pink,
+                color: AppColors.accent,
                 fontSize: 12,
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
@@ -304,12 +304,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: AppColors.pink,
+                  color: AppColors.accent,
                   width: 2,
                 ),
               ),
               errorStyle: GoogleFonts.rammettoOne(
-                color: AppColors.pink,
+                color: AppColors.accent,
                 fontSize: 12,
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
@@ -351,19 +351,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: AppColors.pink,
+                  color: AppColors.accent,
                   width: 1.5,
                 ),
               ),
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: AppColors.pink,
+                  color: AppColors.accent,
                   width: 2,
                 ),
               ),
               errorStyle: GoogleFonts.rammettoOne(
-                color: AppColors.pink,
+                color: AppColors.accent,
                 fontSize: 12,
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
