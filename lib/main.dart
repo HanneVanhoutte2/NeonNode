@@ -125,10 +125,8 @@ class _FeedScreenState extends State<FeedScreen> {
           // Light mode subtle gradient
           if (!isDark)
             Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: AppColors.getBackgroundGradient(isDark),
-                ),
+              child: CustomPaint(
+                painter: GridPainter(),
               ),
             ),
           SafeArea(
@@ -390,7 +388,6 @@ class _FeedScreenState extends State<FeedScreen> {
   }
 }
 
-// Grid painter for cyberpunk background
 class GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -1050,7 +1047,6 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
   }
 }
 
-// Custom clipper for diagonal header
 class DiagonalClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
@@ -1066,7 +1062,6 @@ class DiagonalClipper extends CustomClipper<Path> {
   bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
 
-// Custom clipper for images
 class ImageClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {

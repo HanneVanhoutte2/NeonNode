@@ -30,8 +30,17 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'You must be logged in to post',
-            style: AppTextStyles.bodyMedium(false),
+            'USER AUTH REQUIRED',
+            style: AppTextStyles.error(true),
+          ),
+          backgroundColor: AppColors.darkCard,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(0),
+            side: BorderSide(
+              color: AppColors.error,
+              width: 2,
+            ),
           ),
         ),
       );
@@ -59,12 +68,18 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Failed to create post',
-            style: AppTextStyles.bodyMedium(false).copyWith(
-              color: Colors.white,
+            'POST UPLOAD FAILED',
+            style: AppTextStyles.error(true),
+          ),
+          backgroundColor: AppColors.darkCard,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(0),
+            side: BorderSide(
+              color: AppColors.error,
+              width: 2,
             ),
           ),
-          backgroundColor: AppColors.error,
         ),
       );
     } finally {
@@ -84,221 +99,394 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    final backgroundColor = isDark ? AppColors.darkBackground : AppColors.lightBackground;
-    final cardColor = isDark
-        ? AppColors.darkCard.withValues(alpha: 0.6)
-        : AppColors.lightCard;
-    final borderColor = isDark
-        ? AppColors.secondary.withValues(alpha: 0.5)
-        : AppColors.secondaryDark.withValues(alpha: 0.4);
 
     return Scaffold(
-      backgroundColor: backgroundColor,
-      body: Container(
-        decoration: isDark
-            ? const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.darkBackground,
-              AppColors.darkBackgroundGradient,
-            ],
-          ),
-        )
-            : null,
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Top bar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
-                child: Row(
-                  children: [
-                    Image(
-                      image: AssetImage(
-                          isDark ? 'assets/logo-dark-mode.png' : 'assets/logo-light-mode.png'
-                      ),
-                      height: 40,
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: () {
-                        Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
-                      },
-                      icon: Icon(
-                        isDark ? Icons.light_mode : Icons.dark_mode,
-                        color: isDark ? AppColors.darkText : AppColors.lightText,
-                      ),
-                      tooltip: isDark ? 'Light Mode' : 'Dark Mode',
-                    ),
-                  ],
+      backgroundColor: AppColors.getBackgroundColor(isDark),
+      body: Stack(
+        children: [
+          // Cyberpunk grid background
+          if (isDark)
+            Positioned.fill(
+              child: CustomPaint(
+                painter: GridPainter(),
+              ),
+            ),
+          // Light mode gradient
+          if (!isDark)
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: AppColors.getBackgroundGradient(isDark),
                 ),
               ),
-
-              const SizedBox(height: 24),
-
-              // Centered form card
-              Expanded(
-                child: Center(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                      child: Container(
-                        constraints: const BoxConstraints(maxWidth: 600),
-                        padding: const EdgeInsets.all(32),
+            ),
+          // Content
+          SafeArea(
+            child: Column(
+              children: [
+                // Cyberpunk Header
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? AppColors.darkCard.withValues(alpha: 0.8)
+                        : AppColors.lightCard,
+                    border: Border(
+                      bottom: BorderSide(
+                        color: AppColors.getSecondaryColor(isDark),
+                        width: 2,
+                      ),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: isDark
+                            ? AppColors.neonPinkGlow
+                            : AppColors.secondaryDark.withValues(alpha: 0.2),
+                        blurRadius: isDark ? 15 : 10,
+                        spreadRadius: isDark ? 1 : 0,
+                        offset: isDark ? Offset.zero : const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      // Logo
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: cardColor,
-                          borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: borderColor,
+                            color: AppColors.getPrimaryColor(isDark),
                             width: 2,
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: (isDark ? AppColors.secondary : AppColors.secondaryDark)
-                                  .withValues(alpha: isDark ? 0.15 : 0.1),
-                              blurRadius: 20,
-                              spreadRadius: 2,
-                            ),
-                          ],
                         ),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
+                        child: Image(
+                          image: AssetImage(
+                              isDark ? 'assets/logo-dark-mode.png' : 'assets/logo-light-mode.png'
+                          ),
+                          height: 32,
+                        ),
+                      ),
+                      const Spacer(),
+                      // Theme toggle
+                      Container(
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? AppColors.darkCard
+                              : AppColors.accentDark.withValues(alpha: 0.1),
+                          border: Border.all(
+                            color: AppColors.getPrimaryColor(isDark),
+                            width: 2,
+                          ),
+                          boxShadow: isDark
+                              ? [
+                            BoxShadow(
+                              color: AppColors.neonCyanGlow,
+                              blurRadius: 10,
+                            ),
+                          ]
+                              : null,
+                        ),
+                        child: IconButton(
+                          onPressed: () {
+                            Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
+                          },
+                          icon: Icon(
+                            isDark ? Icons.wb_sunny : Icons.nightlight_round,
+                            color: isDark
+                                ? AppColors.accentSecondary
+                                : AppColors.primaryDark,
+                          ),
+                          tooltip: isDark ? 'Light Mode' : 'Dark Mode',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Form Container
+                Expanded(
+                  child: Center(
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                        child: Container(
+                          constraints: const BoxConstraints(maxWidth: 600),
+                          clipBehavior: Clip.none,
+                          child: Stack(
                             children: [
-                              // Caption field
-                              TextFormField(
-                                controller: _textController,
-                                maxLines: 5,
-                                style: AppTextStyles.bodyLarge(isDark),
-                                decoration: InputDecoration(
-                                  labelText: 'What\'s on your mind?',
-                                  labelStyle: AppTextStyles.bodyMedium(isDark).copyWith(
-                                    color: (isDark ? AppColors.secondary : AppColors.secondaryDark)
-                                        .withValues(alpha: 0.8),
-                                  ),
-                                  filled: true,
-                                  fillColor: isDark
-                                      ? AppColors.darkBackground.withValues(alpha: 0.5)
-                                      : AppColors.lightBackground.withValues(alpha: 0.5),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
-                                      color: borderColor,
-                                      width: 1.5,
+                              // Corner brackets
+                              Positioned(
+                                top: 0,
+                                left: 0,
+                                child: Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      top: BorderSide(
+                                        color: isDark
+                                            ? AppColors.cornerAccent2
+                                            : AppColors.cornerAccent2Light,
+                                        width: 3,
+                                      ),
+                                      left: BorderSide(
+                                        color: isDark
+                                            ? AppColors.cornerAccent2
+                                            : AppColors.cornerAccent2Light,
+                                        width: 3,
+                                      ),
                                     ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
-                                      color: isDark ? AppColors.secondary : AppColors.secondaryDark,
-                                      width: 2,
-                                    ),
-                                  ),
-                                  errorBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
-                                      color: isDark ? AppColors.accent : AppColors.accentDark,
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  focusedErrorBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
-                                      color: isDark ? AppColors.accent : AppColors.accentDark,
-                                      width: 2,
-                                    ),
-                                  ),
-                                  errorStyle: AppTextStyles.caption(isDark).copyWith(
-                                    color: isDark ? AppColors.accent : AppColors.accentDark,
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 20,
-                                    vertical: 18,
-                                  ),
-                                ),
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'Caption is required';
-                                  }
-                                  if (value.trim().length < 2) {
-                                    return 'Caption must be at least 2 characters';
-                                  }
-                                  return null;
-                                },
-                              ),
-
-                              const SizedBox(height: 24),
-
-                              // Image URL field
-                              TextFormField(
-                                controller: _imageUrlController,
-                                style: AppTextStyles.bodyLarge(isDark),
-                                decoration: InputDecoration(
-                                  labelText: 'Image URL (optional)',
-                                  labelStyle: AppTextStyles.bodyMedium(isDark).copyWith(
-                                    color: (isDark ? AppColors.secondary : AppColors.secondaryDark)
-                                        .withValues(alpha: 0.8),
-                                  ),
-                                  filled: true,
-                                  fillColor: isDark
-                                      ? AppColors.darkBackground.withValues(alpha: 0.5)
-                                      : AppColors.lightBackground.withValues(alpha: 0.5),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
-                                      color: borderColor,
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
-                                      color: isDark ? AppColors.secondary : AppColors.secondaryDark,
-                                      width: 2,
-                                    ),
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 20,
-                                    vertical: 18,
                                   ),
                                 ),
                               ),
-
-                              const SizedBox(height: 32),
-
-                              // Post button
-                              SizedBox(
-                                width: double.infinity,
-                                height: 56,
-                                child: ElevatedButton(
-                                  onPressed: _isLoading ? null : _onAddPost,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: isDark ? AppColors.secondary : AppColors.secondaryDark,
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
+                              Positioned(
+                                top: 0,
+                                right: 0,
+                                child: Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      top: BorderSide(
+                                        color: isDark
+                                            ? AppColors.cornerAccent3
+                                            : AppColors.cornerAccent3Light,
+                                        width: 3,
+                                      ),
+                                      right: BorderSide(
+                                        color: isDark
+                                            ? AppColors.cornerAccent3
+                                            : AppColors.cornerAccent3Light,
+                                        width: 3,
+                                      ),
                                     ),
-                                    elevation: 8,
-                                    shadowColor: (isDark ? AppColors.secondary : AppColors.secondaryDark)
-                                        .withValues(alpha: 0.5),
                                   ),
-                                  child: _isLoading
-                                      ? const SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 3,
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                left: 0,
+                                child: Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: isDark
+                                            ? AppColors.cornerAccent1
+                                            : AppColors.cornerAccent1Light,
+                                        width: 3,
+                                      ),
+                                      left: BorderSide(
+                                        color: isDark
+                                            ? AppColors.cornerAccent1
+                                            : AppColors.cornerAccent1Light,
+                                        width: 3,
+                                      ),
                                     ),
-                                  )
-                                      : Text(
-                                    'POST',
-                                    style: AppTextStyles.button(isDark).copyWith(
-                                      color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: isDark
+                                            ? AppColors.cornerAccent2
+                                            : AppColors.cornerAccent2Light,
+                                        width: 3,
+                                      ),
+                                      right: BorderSide(
+                                        color: isDark
+                                            ? AppColors.cornerAccent2
+                                            : AppColors.cornerAccent2Light,
+                                        width: 3,
+                                      ),
                                     ),
+                                  ),
+                                ),
+                              ),
+                              // Main container
+                              Container(
+                                margin: const EdgeInsets.all(12),
+                                padding: const EdgeInsets.all(32),
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? AppColors.darkCard.withValues(alpha: 0.7)
+                                      : AppColors.lightCard,
+                                  border: Border.all(
+                                    color: AppColors.getPrimaryColor(isDark),
+                                    width: 2,
+                                  ),
+                                  boxShadow: isDark
+                                      ? [
+                                    BoxShadow(
+                                      color: AppColors.neonPinkGlow,
+                                      blurRadius: 20,
+                                      spreadRadius: 2,
+                                    ),
+                                    BoxShadow(
+                                      color: AppColors.neonPurpleGlow,
+                                      blurRadius: 30,
+                                    ),
+                                  ]
+                                      : [
+                                    BoxShadow(
+                                      color: AppColors.secondaryDark.withValues(alpha: 0.2),
+                                      blurRadius: 15,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Form(
+                                  key: _formKey,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      // Title
+                                      Text(
+                                        'UPLOAD POST',
+                                        style: AppTextStyles.h3(isDark).copyWith(
+                                          color: AppColors.getSecondaryColor(isDark),
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      const SizedBox(height: 32),
+
+                                      // Caption field
+                                      TextFormField(
+                                        controller: _textController,
+                                        maxLines: 5,
+                                        style: AppTextStyles.input(isDark),
+                                        decoration: InputDecoration(
+                                          labelText: 'MESSAGE CONTENT',
+                                          labelStyle: AppTextStyles.inputHint(isDark).copyWith(
+                                            color: AppColors.getSecondaryColor(isDark).withValues(alpha: 0.7),
+                                          ),
+                                          filled: true,
+                                          fillColor: AppColors.getBackgroundColor(isDark).withValues(alpha: 0.5),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(0),
+                                            borderSide: BorderSide(
+                                              color: AppColors.getSecondaryColor(isDark).withValues(alpha: 0.5),
+                                              width: 2,
+                                            ),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(0),
+                                            borderSide: BorderSide(
+                                              color: AppColors.getSecondaryColor(isDark),
+                                              width: 2,
+                                            ),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(0),
+                                            borderSide: BorderSide(
+                                              color: AppColors.error,
+                                              width: 2,
+                                            ),
+                                          ),
+                                          focusedErrorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(0),
+                                            borderSide: BorderSide(
+                                              color: AppColors.error,
+                                              width: 2,
+                                            ),
+                                          ),
+                                          errorStyle: AppTextStyles.error(isDark).copyWith(fontSize: 11),
+                                          contentPadding: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 16,
+                                          ),
+                                        ),
+                                        validator: (value) {
+                                          if (value == null || value.trim().isEmpty) {
+                                            return 'MESSAGE REQUIRED';
+                                          }
+                                          if (value.trim().length < 2) {
+                                            return 'MIN 2 CHARACTERS';
+                                          }
+                                          return null;
+                                        },
+                                      ),
+
+                                      const SizedBox(height: 24),
+
+                                      // Image URL field
+                                      TextFormField(
+                                        controller: _imageUrlController,
+                                        style: AppTextStyles.input(isDark),
+                                        decoration: InputDecoration(
+                                          labelText: 'IMAGE URL [OPTIONAL]',
+                                          labelStyle: AppTextStyles.inputHint(isDark).copyWith(
+                                            color: AppColors.getSecondaryColor(isDark).withValues(alpha: 0.7),
+                                          ),
+                                          filled: true,
+                                          fillColor: AppColors.getBackgroundColor(isDark).withValues(alpha: 0.5),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(0),
+                                            borderSide: BorderSide(
+                                              color: AppColors.getSecondaryColor(isDark).withValues(alpha: 0.5),
+                                              width: 2,
+                                            ),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(0),
+                                            borderSide: BorderSide(
+                                              color: AppColors.getSecondaryColor(isDark),
+                                              width: 2,
+                                            ),
+                                          ),
+                                          contentPadding: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 16,
+                                          ),
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 36),
+
+                                      // Post button
+                                      SizedBox(
+                                        width: double.infinity,
+                                        height: 56,
+                                        child: ElevatedButton(
+                                          onPressed: _isLoading ? null : _onAddPost,
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: AppColors.getSecondaryColor(isDark),
+                                            foregroundColor: AppColors.darkBackground,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(0),
+                                            ),
+                                            elevation: 0,
+                                            shadowColor: Colors.transparent,
+                                          ),
+                                          child: _isLoading
+                                              ? SizedBox(
+                                            width: 24,
+                                            height: 24,
+                                            child: CircularProgressIndicator(
+                                              color: AppColors.darkBackground,
+                                              strokeWidth: 3,
+                                            ),
+                                          )
+                                              : Text(
+                                            'TRANSMIT POST',
+                                            style: AppTextStyles.button(isDark).copyWith(
+                                              color: AppColors.darkBackground,
+                                              letterSpacing: 2,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -309,55 +497,105 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: 1,
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              Navigator.pushReplacementNamed(context, '/feed');
-              break;
-            case 1:
-              break;
-            case 2:
-              Navigator.pushReplacementNamed(context, '/search');
-              break;
-            case 3:
-              Navigator.pushReplacementNamed(context, '/profile');
-              break;
-          }
-        },
-        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
-        selectedItemColor: isDark ? AppColors.primary : AppColors.primaryDark,
-        unselectedItemColor: (isDark ? AppColors.darkText : AppColors.lightText)
-            .withValues(alpha: 0.5),
-        selectedLabelStyle: AppTextStyles.caption(isDark),
-        unselectedLabelStyle: AppTextStyles.caption(isDark),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Feed',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle),
-            label: 'Post',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ],
       ),
+      // Bottom Navigation Bar
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: isDark
+              ? AppColors.darkCard.withValues(alpha: 0.95)
+              : AppColors.lightCard,
+          border: Border(
+            top: BorderSide(
+              color: AppColors.getSecondaryColor(isDark),
+              width: 2,
+            ),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isDark
+                  ? AppColors.neonPinkGlow
+                  : AppColors.secondaryDark.withValues(alpha: 0.2),
+              blurRadius: isDark ? 15 : 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          currentIndex: 1,
+          onTap: (index) {
+            switch (index) {
+              case 0:
+                Navigator.pushReplacementNamed(context, '/feed');
+                break;
+              case 1:
+                break;
+              case 2:
+                Navigator.pushReplacementNamed(context, '/search');
+                break;
+              case 3:
+                Navigator.pushReplacementNamed(context, '/profile');
+                break;
+            }
+          },
+          backgroundColor: Colors.transparent,
+          selectedItemColor: AppColors.getSecondaryColor(isDark),
+          unselectedItemColor: isDark ? Colors.white54 : Colors.black54,
+          selectedLabelStyle: AppTextStyles.navLabel(isDark).copyWith(
+            color: AppColors.getSecondaryColor(isDark),
+          ),
+          unselectedLabelStyle: AppTextStyles.caption(isDark).copyWith(
+            fontWeight: FontWeight.w500,
+          ),
+          elevation: 0,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'FEED',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.add_box),
+              label: 'POST',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.search),
+              label: 'SEARCH',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'PROFILE',
+            ),
+          ],
+        ),
+      ),
     );
   }
+}
+
+// Grid painter for cyberpunk background
+class GridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = AppColors.gridDark
+      ..strokeWidth = 1;
+
+    const gridSize = 40.0;
+
+    for (double x = 0; x < size.width; x += gridSize) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+
+    for (double y = 0; y < size.height; y += gridSize) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

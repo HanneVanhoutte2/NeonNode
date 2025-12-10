@@ -8,10 +8,10 @@ class AppColors {
   static const accentSecondary = Color(0xFFFFF01F);   // Neon Yellow
 
   // Cyberpunk Light Mode - Pastel Colors
-  static const primaryDark = Color(0xFF7DD3FC);       // Pastel Cyan
-  static const secondaryDark = Color(0xFFF472B6);     // Pastel Pink
-  static const accentDark = Color(0xFFA78BFA);        // Pastel Purple
-  static const accentSecondaryDark = Color(0xFFFDE047); // Soft Yellow
+  static const primaryDark = Color(0xFF00B0FF);       // Dark Cyan
+  static const secondaryDark = Color(0xFFFF006E);     // Dark Pink
+  static const accentDark = Color(0xFF4100FF);        // Dark Purple
+  static const accentSecondaryDark = Color(0xFFF6D300); // Dark Yellow
 
   // Dark Theme Background Colors
   static const darkBackground = Color(0xFF0A0E27);

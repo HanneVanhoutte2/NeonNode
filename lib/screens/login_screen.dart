@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:project/help_functions/app_text_styles.dart';
 import '../help_functions/app_colors.dart';
 import 'register_screen.dart';
@@ -40,8 +39,17 @@ class _LoginScreenState extends State<LoginScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Username not found',
-                style: GoogleFonts.rammettoOne(fontSize: 14),
+                'USERNAME NOT FOUND',
+                style: AppTextStyles.error(true),
+              ),
+              backgroundColor: AppColors.darkCard,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: BorderSide(
+                  color: AppColors.error,
+                  width: 2,
+                ),
               ),
             ),
           );
@@ -64,8 +72,17 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            e.message ?? 'Login failed',
-            style: GoogleFonts.rammettoOne(fontSize: 14),
+            (e.message ?? 'LOGIN FAILED').toUpperCase(),
+            style: AppTextStyles.error(true),
+          ),
+          backgroundColor: AppColors.darkCard,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide(
+              color: AppColors.error,
+              width: 2,
+            ),
           ),
         ),
       );
@@ -74,8 +91,17 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'An error occurred',
-            style: GoogleFonts.rammettoOne(fontSize: 14),
+            'SYSTEM ERROR',
+            style: AppTextStyles.error(true),
+          ),
+          backgroundColor: AppColors.darkCard,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide(
+              color: AppColors.error,
+              width: 2,
+            ),
           ),
         ),
       );
@@ -90,74 +116,153 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.darkBackground,
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.darkBackground,
-              AppColors.darkBackgroundGradient,
-            ],
+      body: Stack(
+        children: [
+          // Cyberpunk grid background
+          Positioned.fill(
+            child: CustomPaint(
+              painter: GridPainter(),
+            ),
           ),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 48.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Image(
-                    image: AssetImage('assets/logo-dark-mode.png'),
-                    height: 120,
-                  ),
-                  const SizedBox(height: 48),
-
-                  NeonToggle(
-                    value: false,
-                    onChanged: (v) {
-                      if (v) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const RegisterScreen(),
-                          ),
-                        );
-                      }
-                    },
-                    activeLabel: 'Register',
-                    inactiveLabel: 'Login',
-                    activeColor: AppColors.secondary,
-                    inactiveColor: AppColors.accent,
-                  ),
-
-                  const SizedBox(height: 40),
-
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: AppColors.darkBackground.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: AppColors.accent.withValues(alpha: 0.3),
-                        width: 1,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.accent.withValues(alpha: 0.1),
-                          blurRadius: 20,
-                          spreadRadius: 2,
+          Center(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 48.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Logo with neon border
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: AppColors.primary,
+                          width: 3,
                         ),
-                      ],
+                      ),
+                      child: const Image(
+                        image: AssetImage('assets/logo-dark-mode.png'),
+                        height: 100,
+                      ),
                     ),
-                    child: buildLoginForm(),
-                  ),
-                ],
+                    const SizedBox(height: 48),
+
+                    // Login/Register Toggle
+                    NeonToggle(
+                      value: false,
+                      onChanged: (v) {
+                        if (v) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const RegisterScreen(),
+                            ),
+                          );
+                        }
+                      },
+                      activeLabel: 'Register',
+                      inactiveLabel: 'Login',
+                      activeColor: AppColors.secondary,
+                      inactiveColor: AppColors.primary,
+                    ),
+
+                    const SizedBox(height: 40),
+
+                    // Login Form Container
+                    Container(
+                      clipBehavior: Clip.none,
+                      child: Stack(
+                        children: [
+                          // Corner brackets
+                          Positioned(
+                            top: 0,
+                            left: 0,
+                            child: Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  top: BorderSide(color: AppColors.primary, width: 3),
+                                  left: BorderSide(color: AppColors.primary, width: 3),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  top: BorderSide(color: AppColors.accent, width: 3),
+                                  right: BorderSide(color: AppColors.accent, width: 3),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            left: 0,
+                            child: Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(color: AppColors.secondary, width: 3),
+                                  left: BorderSide(color: AppColors.secondary, width: 3),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(color: AppColors.accent, width: 3),
+                                  right: BorderSide(color: AppColors.accent, width: 3),
+                                ),
+                              ),
+                            ),
+                          ),
+                          // Main container
+                          Container(
+                            margin: const EdgeInsets.all(12),
+                            padding: const EdgeInsets.all(28),
+                            decoration: BoxDecoration(
+                              color: AppColors.darkCard.withValues(alpha: 0.7),
+                              border: Border.all(
+                                color: AppColors.primary,
+                                width: 2,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.neonCyanGlow,
+                                  blurRadius: 20,
+                                  spreadRadius: 2,
+                                ),
+                                BoxShadow(
+                                  color: AppColors.neonPurpleGlow,
+                                  blurRadius: 30,
+                                ),
+                              ],
+                            ),
+                            child: buildLoginForm(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -167,139 +272,166 @@ class _LoginScreenState extends State<LoginScreen> {
       key: _formKey,
       child: Column(
         children: [
+          // Title
+          Text(
+            'ACCESS TERMINAL',
+            style: AppTextStyles.h3(true),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
+
+          // Email/Username Field
           TextFormField(
             controller: _emailOrUsernameController,
             keyboardType: TextInputType.emailAddress,
             autocorrect: false,
-            style: AppTextStyles.bodyLarge(true),
+            style: AppTextStyles.input(true),
             decoration: InputDecoration(
-              labelText: 'Email or Username',
-              labelStyle: GoogleFonts.rammettoOne(
-                color: AppColors.accent.withValues(alpha: 0.8),
-                fontSize: 14,
+              labelText: 'EMAIL / USERNAME',
+              labelStyle: AppTextStyles.inputHint(true).copyWith(
+                color: AppColors.primary.withValues(alpha: 0.7),
               ),
               filled: true,
               fillColor: AppColors.darkBackground.withValues(alpha: 0.5),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(0),
                 borderSide: BorderSide(
-                  color: AppColors.accent.withValues(alpha: 0.5),
-                  width: 1.5,
+                  color: AppColors.primary.withValues(alpha: 0.5),
+                  width: 2,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: AppColors.accent,
+                borderRadius: BorderRadius.circular(0),
+                borderSide: BorderSide(
+                  color: AppColors.primary,
                   width: 2,
                 ),
               ),
               errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: AppColors.accent,
-                  width: 1.5,
-                ),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: AppColors.accent,
+                borderRadius: BorderRadius.circular(0),
+                borderSide: BorderSide(
+                  color: AppColors.error,
                   width: 2,
                 ),
               ),
-              errorStyle: GoogleFonts.rammettoOne(
-                color: AppColors.accent,
-                fontSize: 12,
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(0),
+                borderSide: BorderSide(
+                  color: AppColors.error,
+                  width: 2,
+                ),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+              errorStyle: AppTextStyles.error(true).copyWith(fontSize: 11),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Please enter email or username';
+                return 'FIELD REQUIRED';
               }
               return null;
             },
           ),
           const SizedBox(height: 24),
 
+          // Password Field
           TextFormField(
             controller: _passwordController,
-            style: AppTextStyles.bodyLarge(true),
+            style: AppTextStyles.input(true),
             obscureText: true,
             decoration: InputDecoration(
-              labelText: 'Password',
-              labelStyle: GoogleFonts.rammettoOne(
-                color: AppColors.accent.withValues(alpha: 0.8),
-                fontSize: 14,
+              labelText: 'PASSWORD',
+              labelStyle: AppTextStyles.inputHint(true).copyWith(
+                color: AppColors.primary.withValues(alpha: 0.7),
               ),
               filled: true,
               fillColor: AppColors.darkBackground.withValues(alpha: 0.5),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(0),
                 borderSide: BorderSide(
-                  color: AppColors.accent.withValues(alpha: 0.5),
-                  width: 1.5,
+                  color: AppColors.primary.withValues(alpha: 0.5),
+                  width: 2,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: AppColors.accent,
+                borderRadius: BorderRadius.circular(0),
+                borderSide: BorderSide(
+                  color: AppColors.primary,
                   width: 2,
                 ),
               ),
               errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: AppColors.accent,
-                  width: 1.5,
-                ),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: AppColors.accent,
+                borderRadius: BorderRadius.circular(0),
+                borderSide: BorderSide(
+                  color: AppColors.error,
                   width: 2,
                 ),
               ),
-              errorStyle: GoogleFonts.rammettoOne(
-                color: AppColors.accent,
-                fontSize: 12,
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(0),
+                borderSide: BorderSide(
+                  color: AppColors.error,
+                  width: 2,
+                ),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+              errorStyle: AppTextStyles.error(true).copyWith(fontSize: 11),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             ),
             validator: (value) {
-              if (value == null || value.isEmpty) return 'Please enter a password';
-              if (value.length < 6) return 'Password must be at least 6 characters';
+              if (value == null || value.isEmpty) return 'PASSWORD REQUIRED';
+              if (value.length < 6) return 'MIN 6 CHARACTERS';
               return null;
             },
           ),
+          const SizedBox(height: 36),
 
-          const SizedBox(height: 32),
-
+          // Login Button
           SizedBox(
             width: double.infinity,
-            height: 50,
+            height: 56,
             child: ElevatedButton(
               onPressed: _isLoading ? null : _login,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.accent,
+                backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.darkBackground,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(0),
                 ),
-                elevation: 8,
-                shadowColor: AppColors.accent.withValues(alpha: 0.5),
+                elevation: 0,
+                shadowColor: Colors.transparent,
+                side: BorderSide(
+                  color: AppColors.primary,
+                  width: 2,
+                ),
+              ).copyWith(
+                overlayColor: WidgetStateProperty.all(
+                  AppColors.primary.withValues(alpha: 0.2),
+                ),
               ),
-              child: _isLoading
-                  ? const CircularProgressIndicator(color: AppColors.darkBackground)
-                  : Text(
-                'Login',
-                style: GoogleFonts.rammettoOne(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.darkBackground,
+              child: Container(
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.neonCyanGlow,
+                      blurRadius: 15,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: _isLoading
+                    ? SizedBox(
+                  height: 24,
+                  width: 24,
+                  child: CircularProgressIndicator(
+                    color: AppColors.darkBackground,
+                    strokeWidth: 3,
+                  ),
+                )
+                    : Text(
+                  'INITIALIZE LOGIN',
+                  style: AppTextStyles.button(true).copyWith(
+                    color: AppColors.darkBackground,
+                    letterSpacing: 2,
+                  ),
                 ),
               ),
             ),
@@ -315,6 +447,29 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordController.dispose();
     super.dispose();
   }
+}
+
+// Grid painter for cyberpunk background
+class GridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = AppColors.gridDark
+      ..strokeWidth = 1;
+
+    const gridSize = 40.0;
+
+    for (double x = 0; x < size.width; x += gridSize) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+
+    for (double y = 0; y < size.height; y += gridSize) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class NeonToggle extends StatelessWidget {
@@ -337,57 +492,94 @@ class NeonToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentColor = value ? activeColor : inactiveColor;
+
     return GestureDetector(
       onTap: () => onChanged(!value),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 350),
-        curve: Curves.easeInOut,
-        width: 200,
-        height: 46,
+      child: Container(
+        width: 240,
+        height: 52,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(23),
-          color: value ? activeColor : inactiveColor,
+          border: Border.all(
+            color: currentColor,
+            width: 2,
+          ),
           boxShadow: [
             BoxShadow(
-              color: (value ? activeColor : inactiveColor).withValues(alpha: 0.6),
+              color: currentColor.withValues(alpha: 0.5),
               blurRadius: 20,
               spreadRadius: 2,
-            )
+            ),
           ],
         ),
         child: Stack(
           children: [
-            AnimatedAlign(
-              duration: const Duration(milliseconds: 350),
+            // Background fill animation
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              alignment: value ? Alignment.centerRight : Alignment.centerLeft,
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 6),
-                width: 34,
-                height: 34,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.lightText,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.darkBackground.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      spreadRadius: 1,
-                    )
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: value ? Alignment.centerLeft : Alignment.centerRight,
+                  end: value ? Alignment.centerRight : Alignment.centerLeft,
+                  colors: [
+                    currentColor.withValues(alpha: 0.3),
+                    currentColor.withValues(alpha: 0.1),
                   ],
                 ),
               ),
             ),
-            Center(
-              child: Text(
-                (value ? activeLabel : inactiveLabel).toUpperCase(),
-                style: GoogleFonts.rammettoOne(
-                  color: AppColors.lightText,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                  letterSpacing: 1.2,
+            // Labels
+            Row(
+              children: [
+                Expanded(
+                  child: AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 300),
+                    style: AppTextStyles.button(true).copyWith(
+                      color: !value ? inactiveColor : Colors.white.withValues(alpha: 0.4),
+                      fontSize: 14,
+                      shadows: !value
+                          ? [
+                        Shadow(
+                          color: inactiveColor.withValues(alpha: 0.6),
+                          blurRadius: 10,
+                        ),
+                      ]
+                          : null,
+                    ),
+                    child: Text(
+                      inactiveLabel.toUpperCase(),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 ),
-              ),
+                Container(
+                  width: 2,
+                  height: double.infinity,
+                  color: currentColor.withValues(alpha: 0.5),
+                ),
+                Expanded(
+                  child: AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 300),
+                    style: AppTextStyles.button(true).copyWith(
+                      color: value ? activeColor : Colors.white.withValues(alpha: 0.4),
+                      fontSize: 14,
+                      shadows: value
+                          ? [
+                        Shadow(
+                          color: activeColor.withValues(alpha: 0.6),
+                          blurRadius: 10,
+                        ),
+                      ]
+                          : null,
+                    ),
+                    child: Text(
+                      activeLabel.toUpperCase(),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

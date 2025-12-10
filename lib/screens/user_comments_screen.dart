@@ -21,36 +21,43 @@ class UserCommentsScreen extends StatelessWidget {
       builder: (dialogContext) => AlertDialog(
         backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(0),
+          side: BorderSide(
+            color: AppColors.error,
+            width: 2,
+          ),
         ),
         title: Text(
-          'Delete Comment?',
+          'DELETE COMMENT?',
           style: AppTextStyles.h4(isDark),
         ),
         content: Text(
-          'This will permanently delete this comment.',
+          'This action is permanent.',
           style: AppTextStyles.bodyMedium(isDark),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
             child: Text(
-              'Cancel',
-              style: AppTextStyles.bodyMedium(isDark),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+              'CANCEL',
+              style: AppTextStyles.button(isDark).copyWith(
+                color: AppColors.getTextColor(isDark),
+                fontSize: 14,
               ),
             ),
-            child: Text(
-              'Delete',
-              style: AppTextStyles.bodyMedium(false).copyWith(
-                color: Colors.white,
+          ),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.error, width: 2),
+            ),
+            child: TextButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text(
+                'DELETE',
+                style: AppTextStyles.button(isDark).copyWith(
+                  color: AppColors.error,
+                  fontSize: 14,
+                ),
               ),
             ),
           ),
@@ -74,11 +81,13 @@ class UserCommentsScreen extends StatelessWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                'Comment deleted successfully',
-                style: AppTextStyles.bodyMedium(false).copyWith(color: Colors.white),
+              content: Text('COMMENT DELETED', style: AppTextStyles.success(isDark)),
+              backgroundColor: AppColors.darkCard,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(0),
+                side: BorderSide(color: AppColors.success, width: 2),
               ),
-              backgroundColor: isDark ? AppColors.primary : AppColors.primaryDark,
             ),
           );
         }
@@ -86,11 +95,13 @@ class UserCommentsScreen extends StatelessWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                'Failed to delete comment',
-                style: AppTextStyles.bodyMedium(false).copyWith(color: Colors.white),
+              content: Text('DELETE FAILED', style: AppTextStyles.error(isDark)),
+              backgroundColor: AppColors.darkCard,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(0),
+                side: BorderSide(color: AppColors.error, width: 2),
               ),
-              backgroundColor: AppColors.error,
             ),
           );
         }
@@ -101,140 +112,213 @@ class UserCommentsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    final backgroundColor = isDark ? AppColors.darkBackground : AppColors.lightBackground;
 
     return Scaffold(
-      backgroundColor: backgroundColor,
-      body: Container(
-        decoration: isDark
-            ? const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.darkBackground,
-              AppColors.darkBackgroundGradient,
-            ],
-          ),
-        )
-            : null,
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: Icon(
-                        Icons.arrow_back,
-                        color: isDark ? AppColors.darkText : AppColors.lightText,
+      backgroundColor: AppColors.getBackgroundColor(isDark),
+      body: Stack(
+        children: [
+          // Cyberpunk grid background
+          if (isDark)
+            Positioned.fill(
+              child: CustomPaint(
+                painter: GridPainter(),
+              ),
+            ),
+          // Light mode gradient
+          if (!isDark)
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: AppColors.getBackgroundGradient(isDark),
+                ),
+              ),
+            ),
+          // Content
+          SafeArea(
+            child: Column(
+              children: [
+                // Cyberpunk Header
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? AppColors.darkCard.withValues(alpha: 0.8)
+                        : AppColors.lightCard,
+                    border: Border(
+                      bottom: BorderSide(
+                        color: AppColors.getSecondaryColor(isDark),
+                        width: 2,
                       ),
                     ),
-                    Text(
-                      '$displayName\'s Comments',
-                      style: AppTextStyles.h3(isDark),
-                    ),
-                  ],
+                    boxShadow: [
+                      BoxShadow(
+                        color: isDark
+                            ? AppColors.neonPinkGlow
+                            : AppColors.secondaryDark.withValues(alpha: 0.2),
+                        blurRadius: isDark ? 15 : 10,
+                        spreadRadius: isDark ? 1 : 0,
+                        offset: isDark ? Offset.zero : const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      // Back button
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: AppColors.getSecondaryColor(isDark),
+                            width: 2,
+                          ),
+                        ),
+                        child: IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: Icon(
+                            Icons.arrow_back,
+                            color: AppColors.getSecondaryColor(isDark),
+                          ),
+                          iconSize: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
+                          '${displayName.toUpperCase()}\'S COMMENTS',
+                          style: AppTextStyles.h4(isDark).copyWith(
+                            color: AppColors.getSecondaryColor(isDark),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: FutureBuilder<List<Map<String, dynamic>>>(
-                  future: _fetchUserComments(userId),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.error,
-                              size: 64,
-                              color: AppColors.error,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Error loading comments',
-                              style: AppTextStyles.bodyLarge(isDark),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
+                const SizedBox(height: 12),
 
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CircularProgressIndicator(
-                              color: isDark ? AppColors.primary : AppColors.primaryDark,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Loading comments...',
-                              style: AppTextStyles.bodyMedium(isDark),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-
-                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.comment,
-                              size: 64,
-                              color: (isDark ? AppColors.darkText : AppColors.lightText)
-                                  .withValues(alpha: 0.3),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No comments yet',
-                              textAlign: TextAlign.center,
-                              style: AppTextStyles.bodyLarge(isDark).copyWith(
-                                color: (isDark ? AppColors.darkText : AppColors.lightText)
-                                    .withValues(alpha: 0.6),
+                // Comments List
+                Expanded(
+                  child: FutureBuilder<List<Map<String, dynamic>>>(
+                    future: _fetchUserComments(userId),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: AppColors.error,
+                                width: 3,
                               ),
                             ),
-                          ],
-                        ),
-                      );
-                    }
-
-                    final comments = snapshot.data!;
-
-                    return ListView.builder(
-                      padding: const EdgeInsets.all(16.0),
-                      itemCount: comments.length,
-                      itemBuilder: (context, index) {
-                        final comment = comments[index];
-
-                        return CommentCard(
-                          text: comment['text'] ?? '',
-                          postPreview: comment['postPreview'] ?? '',
-                          createdAt: comment['createdAt'] as Timestamp?,
-                          isDark: isDark,
-                          onDelete: () => _deleteComment(
-                            context,
-                            comment['postId'],
-                            comment['commentId'],
-                            isDark,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.error_outline,
+                                  size: 64,
+                                  color: AppColors.error,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'ERROR LOADING COMMENTS',
+                                  style: AppTextStyles.systemMessage(isDark).copyWith(
+                                    color: AppColors.error,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         );
-                      },
-                    );
-                  },
+                      }
+
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 50,
+                                height: 50,
+                                child: CircularProgressIndicator(
+                                  color: AppColors.getSecondaryColor(isDark),
+                                  strokeWidth: 3,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'LOADING...',
+                                style: AppTextStyles.systemMessage(isDark),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(24),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: AppColors.getAccentColor(isDark),
+                                    width: 3,
+                                  ),
+                                  boxShadow: isDark
+                                      ? [
+                                    BoxShadow(
+                                      color: AppColors.neonPurpleGlow,
+                                      blurRadius: 20,
+                                    ),
+                                  ]
+                                      : null,
+                                ),
+                                child: Icon(
+                                  Icons.comment,
+                                  size: 64,
+                                  color: AppColors.getAccentColor(isDark),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              Text(
+                                'NO COMMENTS FOUND',
+                                style: AppTextStyles.systemTitle(isDark),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      final comments = snapshot.data!;
+
+                      return ListView.builder(
+                        padding: const EdgeInsets.all(16.0),
+                        itemCount: comments.length,
+                        itemBuilder: (context, index) {
+                          final comment = comments[index];
+
+                          return CommentCard(
+                            text: comment['text'] ?? '',
+                            postPreview: comment['postPreview'] ?? '',
+                            createdAt: comment['createdAt'] as Timestamp?,
+                            isDark: isDark,
+                            onDelete: () => _deleteComment(
+                              context,
+                              comment['postId'],
+                              comment['commentId'],
+                              isDark,
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -279,7 +363,7 @@ class UserCommentsScreen extends StatelessWidget {
   }
 }
 
-// Widget: Comment Card
+// Comment Card Widget
 class CommentCard extends StatelessWidget {
   final String text;
   final String postPreview;
@@ -297,74 +381,190 @@ class CommentCard extends StatelessWidget {
   });
 
   String _formatTime(Timestamp? timestamp) {
-    if (timestamp == null) return 'Just now';
+    if (timestamp == null) return 'NOW';
     final date = timestamp.toDate();
     final now = DateTime.now();
     final difference = now.difference(date);
 
     if (difference.inDays > 0) {
-      return '${difference.inDays}d ago';
+      return '${difference.inDays}D AGO';
     } else if (difference.inHours > 0) {
-      return '${difference.inHours}h ago';
+      return '${difference.inHours}H AGO';
     } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}m ago';
+      return '${difference.inMinutes}M AGO';
     } else {
-      return 'Just now';
+      return 'NOW';
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final cardColor = isDark
-        ? AppColors.darkCard.withValues(alpha: 0.6)
-        : AppColors.lightCard;
-    final borderColor = isDark
-        ? AppColors.primary.withValues(alpha: 0.5)
-        : AppColors.secondary.withValues(alpha: 0.4);
-
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor, width: 2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      clipBehavior: Clip.none,
+      child: Stack(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  text,
-                  style: AppTextStyles.bodyMedium(isDark),
+          // Corner brackets
+          Positioned(
+            top: 0,
+            left: 0,
+            child: Container(
+              width: 16,
+              height: 16,
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(
+                    color: isDark
+                        ? AppColors.cornerAccent2
+                        : AppColors.cornerAccent2Light,
+                    width: 2,
+                  ),
+                  left: BorderSide(
+                    color: isDark
+                        ? AppColors.cornerAccent2
+                        : AppColors.cornerAccent2Light,
+                    width: 2,
+                  ),
                 ),
               ),
-              IconButton(
-                onPressed: onDelete,
-                icon: const Icon(Icons.delete),
-                color: AppColors.error,
-                tooltip: 'Delete comment',
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Container(
+              width: 16,
+              height: 16,
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: isDark
+                        ? AppColors.cornerAccent2
+                        : AppColors.cornerAccent2Light,
+                    width: 2,
+                  ),
+                  right: BorderSide(
+                    color: isDark
+                        ? AppColors.cornerAccent2
+                        : AppColors.cornerAccent2Light,
+                    width: 2,
+                  ),
+                ),
               ),
-            ],
+            ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'On: $postPreview',
-            style: AppTextStyles.caption(isDark),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            _formatTime(createdAt),
-            style: AppTextStyles.caption(isDark),
+          // Main container
+          Container(
+            margin: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.getCardColor(isDark).withValues(alpha: 0.7),
+              border: Border.all(
+                color: AppColors.getSecondaryColor(isDark),
+                width: 2,
+              ),
+              boxShadow: isDark
+                  ? [
+                BoxShadow(
+                  color: AppColors.neonPinkGlow,
+                  blurRadius: 15,
+                  spreadRadius: 1,
+                ),
+              ]
+                  : [
+                BoxShadow(
+                  color: AppColors.secondaryDark.withValues(alpha: 0.2),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        text,
+                        style: AppTextStyles.bodyMedium(isDark),
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.error, width: 1),
+                      ),
+                      child: IconButton(
+                        onPressed: onDelete,
+                        icon: const Icon(Icons.delete),
+                        color: AppColors.error,
+                        tooltip: 'Delete',
+                        padding: const EdgeInsets.all(6),
+                        constraints: const BoxConstraints(),
+                        iconSize: 18,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: AppColors.getAccentColor(isDark).withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        'ON: ',
+                        style: AppTextStyles.label(isDark).copyWith(fontSize: 10),
+                      ),
+                      Expanded(
+                        child: Text(
+                          postPreview,
+                          style: AppTextStyles.caption(isDark),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _formatTime(createdAt),
+                  style: AppTextStyles.timeFormat(isDark),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
+}
+
+// Grid painter for cyberpunk background
+class GridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = AppColors.gridDark
+      ..strokeWidth = 1;
+
+    const gridSize = 40.0;
+
+    for (double x = 0; x < size.width; x += gridSize) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+
+    for (double y = 0; y < size.height; y += gridSize) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

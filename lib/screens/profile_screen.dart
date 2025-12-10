@@ -50,11 +50,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           .where('authorId', isEqualTo: currentUser.uid)
           .get();
 
-      // Count ALL comments by this user across ALL posts
       int totalComments = 0;
-      final allPosts = await FirebaseFirestore.instance
-          .collection('posts')
-          .get();
+      final allPosts = await FirebaseFirestore.instance.collection('posts').get();
 
       for (var post in allPosts.docs) {
         final commentsQuery = await FirebaseFirestore.instance
@@ -118,28 +115,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (dialogContext) => AlertDialog(
         backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(0),
+          side: BorderSide(
+            color: AppColors.getPrimaryColor(isDark),
+            width: 2,
+          ),
         ),
         title: Text(
-          'Edit Display Name',
+          'EDIT DISPLAY NAME',
           style: AppTextStyles.h4(isDark),
         ),
         content: TextField(
           controller: controller,
-          style: AppTextStyles.bodyLarge(isDark),
+          style: AppTextStyles.input(isDark),
           decoration: InputDecoration(
-            hintText: 'Enter new display name',
-            hintStyle: AppTextStyles.bodyMedium(isDark).copyWith(
-              color: (isDark ? AppColors.darkText : AppColors.lightText)
-                  .withValues(alpha: 0.5),
-            ),
+            hintText: 'ENTER NEW NAME',
+            hintStyle: AppTextStyles.inputHint(isDark),
             filled: true,
-            fillColor: isDark
-                ? AppColors.darkBackground.withValues(alpha: 0.5)
-                : Colors.grey[100],
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
+            fillColor: AppColors.getBackgroundColor(isDark).withValues(alpha: 0.5),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(0),
+              borderSide: BorderSide(
+                color: AppColors.getPrimaryColor(isDark).withValues(alpha: 0.5),
+                width: 2,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(0),
+              borderSide: BorderSide(
+                color: AppColors.getPrimaryColor(isDark),
+                width: 2,
+              ),
             ),
           ),
         ),
@@ -147,48 +153,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
             child: Text(
-              'Cancel',
-              style: AppTextStyles.bodyMedium(isDark).copyWith(
-                color: (isDark ? AppColors.darkText : AppColors.lightText)
-                    .withValues(alpha: 0.7),
+              'CANCEL',
+              style: AppTextStyles.button(isDark).copyWith(
+                color: AppColors.getTextColor(isDark),
+                fontSize: 14,
               ),
             ),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              final newName = controller.text.trim();
-              if (newName.isEmpty || newName.length < 2) {
-                return;
-              }
-
-              try {
-                await FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(currentUser.uid)
-                    .update({
-                  'displayName': newName,
-                });
-
-                if (dialogContext.mounted) {
-                  Navigator.pop(dialogContext, true);
-                }
-              } catch (e) {
-                if (dialogContext.mounted) {
-                  Navigator.pop(dialogContext, false);
-                }
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isDark ? AppColors.primary : AppColors.primaryDark,
-              foregroundColor: Colors.black,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: AppColors.getPrimaryColor(isDark),
+                width: 2,
               ),
             ),
-            child: Text(
-              'Save',
-              style: AppTextStyles.bodyMedium(false).copyWith(
-                color: Colors.black,
+            child: TextButton(
+              onPressed: () async {
+                final newName = controller.text.trim();
+                if (newName.isEmpty || newName.length < 2) return;
+
+                try {
+                  await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(currentUser.uid)
+                      .update({'displayName': newName});
+
+                  if (dialogContext.mounted) {
+                    Navigator.pop(dialogContext, true);
+                  }
+                } catch (e) {
+                  if (dialogContext.mounted) {
+                    Navigator.pop(dialogContext, false);
+                  }
+                }
+              },
+              child: Text(
+                'SAVE',
+                style: AppTextStyles.button(isDark).copyWith(
+                  color: AppColors.getPrimaryColor(isDark),
+                  fontSize: 14,
+                ),
               ),
             ),
           ),
@@ -201,13 +205,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'Display name updated! 🚀',
-              style: AppTextStyles.bodyMedium(false).copyWith(
-                color: Colors.black,
-              ),
+            content: Text('NAME UPDATED', style: AppTextStyles.success(isDark)),
+            backgroundColor: AppColors.darkCard,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(0),
+              side: BorderSide(color: AppColors.success, width: 2),
             ),
-            backgroundColor: isDark ? AppColors.primary : AppColors.primaryDark,
           ),
         );
       }
@@ -226,10 +230,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (dialogContext) => AlertDialog(
         backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(0),
+          side: BorderSide(
+            color: AppColors.getSecondaryColor(isDark),
+            width: 2,
+          ),
         ),
         title: Text(
-          'Edit Profile Picture',
+          'EDIT PROFILE PICTURE',
           style: AppTextStyles.h4(isDark),
         ),
         content: Column(
@@ -237,26 +245,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             TextField(
               controller: controller,
-              style: AppTextStyles.bodyLarge(isDark),
+              style: AppTextStyles.input(isDark),
               decoration: InputDecoration(
-                hintText: 'Enter image URL',
-                hintStyle: AppTextStyles.bodyMedium(isDark).copyWith(
-                  color: (isDark ? AppColors.darkText : AppColors.lightText)
-                      .withValues(alpha: 0.5),
-                ),
+                hintText: 'IMAGE URL',
+                hintStyle: AppTextStyles.inputHint(isDark),
                 filled: true,
-                fillColor: isDark
-                    ? AppColors.darkBackground.withValues(alpha: 0.5)
-                    : Colors.grey[100],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+                fillColor: AppColors.getBackgroundColor(isDark).withValues(alpha: 0.5),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(0),
+                  borderSide: BorderSide(
+                    color: AppColors.getSecondaryColor(isDark).withValues(alpha: 0.5),
+                    width: 2,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(0),
+                  borderSide: BorderSide(
+                    color: AppColors.getSecondaryColor(isDark),
+                    width: 2,
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 12),
             Text(
-              'Paste a direct link to your profile image',
+              'PASTE DIRECT IMAGE LINK',
               style: AppTextStyles.caption(isDark),
             ),
           ],
@@ -265,45 +278,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
             child: Text(
-              'Cancel',
-              style: AppTextStyles.bodyMedium(isDark).copyWith(
-                color: (isDark ? AppColors.darkText : AppColors.lightText)
-                    .withValues(alpha: 0.7),
+              'CANCEL',
+              style: AppTextStyles.button(isDark).copyWith(
+                color: AppColors.getTextColor(isDark),
+                fontSize: 14,
               ),
             ),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              final newUrl = controller.text.trim();
-
-              try {
-                await FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(currentUser.uid)
-                    .update({
-                  'avatarUrl': newUrl,
-                });
-
-                if (dialogContext.mounted) {
-                  Navigator.pop(dialogContext, true);
-                }
-              } catch (e) {
-                if (dialogContext.mounted) {
-                  Navigator.pop(dialogContext, false);
-                }
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isDark ? AppColors.primary : AppColors.primaryDark,
-              foregroundColor: Colors.black,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: AppColors.getSecondaryColor(isDark),
+                width: 2,
               ),
             ),
-            child: Text(
-              'Save',
-              style: AppTextStyles.bodyMedium(false).copyWith(
-                color: Colors.black,
+            child: TextButton(
+              onPressed: () async {
+                final newUrl = controller.text.trim();
+                try {
+                  await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(currentUser.uid)
+                      .update({'avatarUrl': newUrl});
+
+                  if (dialogContext.mounted) {
+                    Navigator.pop(dialogContext, true);
+                  }
+                } catch (e) {
+                  if (dialogContext.mounted) {
+                    Navigator.pop(dialogContext, false);
+                  }
+                }
+              },
+              child: Text(
+                'SAVE',
+                style: AppTextStyles.button(isDark).copyWith(
+                  color: AppColors.getSecondaryColor(isDark),
+                  fontSize: 14,
+                ),
               ),
             ),
           ),
@@ -316,13 +328,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'Profile picture updated! 🚀',
-              style: AppTextStyles.bodyMedium(false).copyWith(
-                color: Colors.black,
-              ),
+            content: Text('AVATAR UPDATED', style: AppTextStyles.success(isDark)),
+            backgroundColor: AppColors.darkCard,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(0),
+              side: BorderSide(color: AppColors.success, width: 2),
             ),
-            backgroundColor: isDark ? AppColors.primary : AppColors.primaryDark,
           ),
         );
       }
@@ -335,33 +347,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (currentUser == null || currentUser.email == null) return;
 
     try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(
-        email: currentUser.email!,
-      );
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: currentUser.email!);
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Password reset email sent! Check your inbox.',
-            style: AppTextStyles.bodyMedium(false).copyWith(
-              color: Colors.black,
-            ),
+          content: Text('RESET EMAIL SENT', style: AppTextStyles.success(isDark)),
+          backgroundColor: AppColors.darkCard,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(0),
+            side: BorderSide(color: AppColors.success, width: 2),
           ),
-          backgroundColor: isDark ? AppColors.primary : AppColors.primaryDark,
         ),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Failed to send password reset email',
-            style: AppTextStyles.bodyMedium(false).copyWith(
-              color: Colors.white,
-            ),
+          content: Text('RESET FAILED', style: AppTextStyles.error(isDark)),
+          backgroundColor: AppColors.darkCard,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(0),
+            side: BorderSide(color: AppColors.error, width: 2),
           ),
-          backgroundColor: AppColors.error,
         ),
       );
     }
@@ -370,356 +380,690 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    final backgroundColor = isDark ? AppColors.darkBackground : AppColors.lightBackground;
-    final cardColor = isDark
-        ? AppColors.darkCard.withValues(alpha: 0.6)
-        : AppColors.lightCard;
-    final borderColor = isDark
-        ? (isDark ? AppColors.primary : AppColors.primaryDark).withValues(alpha: 0.5)
-        : AppColors.lightBorder;
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
-      backgroundColor: backgroundColor,
-      body: Container(
-        decoration: isDark
-            ? const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.darkBackground,
-              AppColors.darkBackgroundGradient,
-            ],
-          ),
-        )
-            : null,
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
-                child: Row(
-                  children: [
-                    Image(
-                      image: AssetImage(
-                          isDark ? 'assets/logo-dark-mode.png' : 'assets/logo-light-mode.png'
-                      ),
-                      height: 40,
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: () {
-                        Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
-                      },
-                      icon: Icon(
-                        isDark ? Icons.light_mode : Icons.dark_mode,
-                        color: isDark ? AppColors.darkText : AppColors.lightText,
-                      ),
-                      tooltip: isDark ? 'Light Mode' : 'Dark Mode',
-                    ),
-                  ],
+      backgroundColor: AppColors.getBackgroundColor(isDark),
+      body: Stack(
+        children: [
+          // Cyberpunk grid background
+          if (isDark)
+            Positioned.fill(
+              child: CustomPaint(
+                painter: GridPainter(),
+              ),
+            ),
+          // Light mode gradient
+          if (!isDark)
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: AppColors.getBackgroundGradient(isDark),
                 ),
               ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
+            ),
+          // Content
+          SafeArea(
+            child: Column(
+              children: [
+                // Cyberpunk Header
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? AppColors.darkCard.withValues(alpha: 0.8)
+                        : AppColors.lightCard,
+                    border: Border(
+                      bottom: BorderSide(
+                        color: AppColors.getAccentColor(isDark),
+                        width: 2,
+                      ),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: isDark
+                            ? AppColors.neonPurpleGlow
+                            : AppColors.accentDark.withValues(alpha: 0.2),
+                        blurRadius: isDark ? 15 : 10,
+                        spreadRadius: isDark ? 1 : 0,
+                        offset: isDark ? Offset.zero : const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
                     children: [
-                      Stack(
-                        children: [
-                          CircleAvatar(
-                            radius: 60,
-                            backgroundColor: isDark ? AppColors.secondary : AppColors.secondaryDark,
-                            backgroundImage: _avatarUrl.isNotEmpty
-                                ? NetworkImage(_avatarUrl)
-                                : null,
-                            child: _avatarUrl.isEmpty
-                                ? Text(
-                              _isLoading
-                                  ? '?'
-                                  : _displayName.isNotEmpty
-                                  ? _displayName.substring(0, 1).toUpperCase()
-                                  : 'U',
-                              style: AppTextStyles.h1(false).copyWith(
-                                color: Colors.white,
-                              ),
-                            )
-                                : null,
+                      // Logo
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: AppColors.getAccentColor(isDark),
+                            width: 2,
                           ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: GestureDetector(
-                              onTap: _editAvatarUrl,
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: isDark ? AppColors.primary : AppColors.primaryDark,
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.3),
-                                      blurRadius: 8,
-                                    ),
-                                  ],
-                                ),
-                                child: Icon(
-                                  Icons.camera_alt,
-                                  size: 20,
-                                  color: isDark ? Colors.black : Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
+                        child: Image(
+                          image: AssetImage(
+                              isDark ? 'assets/logo-dark-mode.png' : 'assets/logo-light-mode.png'),
+                          height: 32,
+                        ),
                       ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            _isLoading ? 'Loading...' : _displayName,
-                            style: AppTextStyles.h2(isDark),
-                          ),
-                          IconButton(
-                            onPressed: _editDisplayName,
-                            icon: Icon(
-                              Icons.edit,
-                              size: 20,
-                              color: isDark ? AppColors.primary : AppColors.primaryDark,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        user?.email ?? 'No email',
-                        style: AppTextStyles.subtitle(isDark),
-                      ),
-                      const SizedBox(height: 24),
-
-                      Row(
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: _showUserPosts,
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: cardColor,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: borderColor, width: 2),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: (isDark ? AppColors.primary : AppColors.primaryDark)
-                                          .withValues(alpha: isDark ? 0.15 : 0.1),
-                                      blurRadius: 12,
-                                      spreadRadius: 2,
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      _postCount.toString(),
-                                      style: AppTextStyles.h2(isDark).copyWith(
-                                        color: isDark ? AppColors.primary : AppColors.primaryDark,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Posts',
-                                      style: AppTextStyles.bodyMedium(isDark),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: _showUserComments,
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: cardColor,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: borderColor, width: 2),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: (isDark ? AppColors.secondary : AppColors.secondaryDark)
-                                          .withValues(alpha: isDark ? 0.15 : 0.1),
-                                      blurRadius: 12,
-                                      spreadRadius: 2,
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      _commentCount.toString(),
-                                      style: AppTextStyles.h2(isDark).copyWith(
-                                        color: isDark ? AppColors.secondary : AppColors.secondaryDark,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Comments',
-                                      style: AppTextStyles.bodyMedium(isDark),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-
+                      const Spacer(),
+                      // Theme toggle
                       Container(
                         decoration: BoxDecoration(
-                          color: cardColor,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: borderColor, width: 2),
+                          color: isDark
+                              ? AppColors.darkCard
+                              : AppColors.accentDark.withValues(alpha: 0.1),
+                          border: Border.all(
+                            color: AppColors.getPrimaryColor(isDark),
+                            width: 2,
+                          ),
+                          boxShadow: isDark
+                              ? [
+                            BoxShadow(
+                              color: AppColors.neonCyanGlow,
+                              blurRadius: 10,
+                            ),
+                          ]
+                              : null,
                         ),
-                        child: Column(
-                          children: [
-                            ListTile(
-                              leading: Icon(
-                                Icons.lock,
-                                color: isDark ? AppColors.darkText : AppColors.lightText,
-                              ),
-                              title: Text(
-                                'Change Password',
-                                style: AppTextStyles.bodyMedium(isDark),
-                              ),
-                              trailing: Icon(
-                                Icons.arrow_forward_ios,
-                                size: 16,
-                                color: (isDark ? AppColors.darkText : AppColors.lightText)
-                                    .withValues(alpha: 0.5),
-                              ),
-                              onTap: _changePassword,
-                            ),
-                            Divider(
-                              height: 1,
-                              color: borderColor,
-                            ),
-                            ListTile(
-                              leading: Icon(
-                                Icons.notifications,
-                                color: isDark ? AppColors.darkText : AppColors.lightText,
-                              ),
-                              title: Text(
-                                'Notifications',
-                                style: AppTextStyles.bodyMedium(isDark),
-                              ),
-                              trailing: Icon(
-                                Icons.arrow_forward_ios,
-                                size: 16,
-                                color: (isDark ? AppColors.darkText : AppColors.lightText)
-                                    .withValues(alpha: 0.5),
-                              ),
-                              onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Coming soon!',
-                                      style: AppTextStyles.bodyMedium(false).copyWith(
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    backgroundColor: isDark ? AppColors.primary : AppColors.primaryDark,
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
+                        child: IconButton(
                           onPressed: () {
-                            FirebaseAuth.instance.signOut();
-                            Navigator.pushReplacementNamed(context, '/login');
+                            Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
                           },
-                          icon: const Icon(Icons.logout),
-                          label: Text(
-                            'Logout',
-                            style: AppTextStyles.button(isDark).copyWith(
-                              color: Colors.white,
-                            ),
+                          icon: Icon(
+                            isDark ? Icons.wb_sunny : Icons.nightlight_round,
+                            color: isDark ? AppColors.accentSecondary : AppColors.primaryDark,
                           ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: isDark ? AppColors.secondary : AppColors.secondaryDark,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
+                          tooltip: isDark ? 'Light Mode' : 'Dark Mode',
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: 3,
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              Navigator.pushReplacementNamed(context, '/feed');
-              break;
-            case 1:
-              final user = FirebaseAuth.instance.currentUser;
-              if (user != null) {
-                Navigator.pushNamed(context, '/create-post');
-              }
-              break;
-            case 2:
-              Navigator.pushReplacementNamed(context, '/search');
-              break;
-            case 3:
-              break;
-          }
-        },
-        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
-        selectedItemColor: isDark ? AppColors.primary : AppColors.primaryDark,
-        unselectedItemColor: (isDark ? AppColors.darkText : AppColors.lightText)
-            .withValues(alpha: 0.5),
-        selectedLabelStyle: AppTextStyles.caption(isDark),
-        unselectedLabelStyle: AppTextStyles.caption(isDark),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Feed',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle),
-            label: 'Post',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
+                const SizedBox(height: 12),
+
+                // Main Content
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        // Profile Avatar with edit button
+                        Stack(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: AppColors.getSecondaryColor(isDark),
+                                  width: 3,
+                                ),
+                                boxShadow: isDark
+                                    ? [
+                                  BoxShadow(
+                                    color: AppColors.neonPinkGlow,
+                                    blurRadius: 20,
+                                    spreadRadius: 2,
+                                  ),
+                                ]
+                                    : null,
+                              ),
+                              child: CircleAvatar(
+                                radius: 60,
+                                backgroundColor: AppColors.getBackgroundColor(isDark),
+                                backgroundImage:
+                                _avatarUrl.isNotEmpty ? NetworkImage(_avatarUrl) : null,
+                                child: _avatarUrl.isEmpty
+                                    ? Text(
+                                  _isLoading
+                                      ? '?'
+                                      : _displayName.isNotEmpty
+                                      ? _displayName.substring(0, 1).toUpperCase()
+                                      : 'U',
+                                  style: AppTextStyles.h1(isDark).copyWith(
+                                    color: AppColors.getSecondaryColor(isDark),
+                                  ),
+                                )
+                                    : null,
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                onTap: _editAvatarUrl,
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.getSecondaryColor(isDark),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: AppColors.getBackgroundColor(isDark),
+                                      width: 2,
+                                    ),
+                                    boxShadow: isDark
+                                        ? [
+                                      BoxShadow(
+                                        color: AppColors.neonPinkGlow,
+                                        blurRadius: 10,
+                                      ),
+                                    ]
+                                        : null,
+                                  ),
+                                  child: Icon(
+                                    Icons.camera_alt,
+                                    size: 20,
+                                    color: AppColors.darkBackground,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Display Name with edit button
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              _isLoading ? 'LOADING...' : _displayName.toUpperCase(),
+                              style: AppTextStyles.h2(isDark).copyWith(
+                                color: AppColors.getTextColor(isDark),
+                              ),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.only(left: 8),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: AppColors.getPrimaryColor(isDark),
+                                  width: 2,
+                                ),
+                              ),
+                              child: IconButton(
+                                onPressed: _editDisplayName,
+                                icon: Icon(
+                                  Icons.edit,
+                                  size: 18,
+                                  color: AppColors.getPrimaryColor(isDark),
+                                ),
+                                padding: const EdgeInsets.all(6),
+                                constraints: const BoxConstraints(),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          user?.email ?? 'NO EMAIL',
+                          style: AppTextStyles.subtitle(isDark),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Stats Cards
+                        Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: _showUserPosts,
+                                child: AspectRatio(
+                                  aspectRatio: 1.5,
+                                  child: Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      // Corner brackets
+                                      Positioned(
+                                        top: 0,
+                                        left: 0,
+                                        child: Container(
+                                          width: 16,
+                                          height: 16,
+                                          decoration: BoxDecoration(
+                                            border: Border(
+                                              top: BorderSide(
+                                                color: isDark
+                                                    ? AppColors.cornerAccent1
+                                                    : AppColors.cornerAccent1Light,
+                                                width: 2,
+                                              ),
+                                              left: BorderSide(
+                                                color: isDark
+                                                    ? AppColors.cornerAccent1
+                                                    : AppColors.cornerAccent1Light,
+                                                width: 2,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        bottom: 0,
+                                        right: 0,
+                                        child: Container(
+                                          width: 16,
+                                          height: 16,
+                                          decoration: BoxDecoration(
+                                            border: Border(
+                                              bottom: BorderSide(
+                                                color: isDark
+                                                    ? AppColors.cornerAccent1
+                                                    : AppColors.cornerAccent1Light,
+                                                width: 2,
+                                              ),
+                                              right: BorderSide(
+                                                color: isDark
+                                                    ? AppColors.cornerAccent1
+                                                    : AppColors.cornerAccent1Light,
+                                                width: 2,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      // Main container
+                                      Positioned.fill(
+                                        child: Container(
+                                          margin: const EdgeInsets.all(6),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.getCardColor(isDark)
+                                                .withValues(alpha: 0.7),
+                                            border: Border.all(
+                                              color: AppColors.getPrimaryColor(isDark),
+                                              width: 2,
+                                            ),
+                                            boxShadow: isDark
+                                                ? [
+                                              BoxShadow(
+                                                color: AppColors.neonCyanGlow,
+                                                blurRadius: 15,
+                                                spreadRadius: 1,
+                                              ),
+                                            ]
+                                                : [
+                                              BoxShadow(
+                                                color: AppColors.primaryDark
+                                                    .withValues(alpha: 0.2),
+                                                blurRadius: 10,
+                                                offset: const Offset(0, 4),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                _postCount.toString(),
+                                                style: AppTextStyles.h2(isDark).copyWith(
+                                                  color: AppColors.getPrimaryColor(isDark),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                'POSTS',
+                                                style: AppTextStyles.label(isDark),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: _showUserComments,
+                                child: AspectRatio(
+                                  aspectRatio: 1.5,
+                                  child: Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      // Corner brackets
+                                      Positioned(
+                                        top: 0,
+                                        left: 0,
+                                        child: Container(
+                                          width: 16,
+                                          height: 16,
+                                          decoration: BoxDecoration(
+                                            border: Border(
+                                              top: BorderSide(
+                                                color: isDark
+                                                    ? AppColors.cornerAccent2
+                                                    : AppColors.cornerAccent2Light,
+                                                width: 2,
+                                              ),
+                                              left: BorderSide(
+                                                color: isDark
+                                                    ? AppColors.cornerAccent2
+                                                    : AppColors.cornerAccent2Light,
+                                                width: 2,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        bottom: 0,
+                                        right: 0,
+                                        child: Container(
+                                          width: 16,
+                                          height: 16,
+                                          decoration: BoxDecoration(
+                                            border: Border(
+                                              bottom: BorderSide(
+                                                color: isDark
+                                                    ? AppColors.cornerAccent2
+                                                    : AppColors.cornerAccent2Light,
+                                                width: 2,
+                                              ),
+                                              right: BorderSide(
+                                                color: isDark
+                                                    ? AppColors.cornerAccent2
+                                                    : AppColors.cornerAccent2Light,
+                                                width: 2,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      // Main container
+                                      Positioned.fill(
+                                        child: Container(
+                                          margin: const EdgeInsets.all(6),
+                                          padding: const EdgeInsets.all(20),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.getCardColor(isDark)
+                                                .withValues(alpha: 0.7),
+                                            border: Border.all(
+                                              color: AppColors.getSecondaryColor(isDark),
+                                              width: 2,
+                                            ),
+                                            boxShadow: isDark
+                                                ? [
+                                              BoxShadow(
+                                                color: AppColors.neonPinkGlow,
+                                                blurRadius: 15,
+                                                spreadRadius: 1,
+                                              ),
+                                            ]
+                                                : [
+                                              BoxShadow(
+                                                color: AppColors.secondaryDark
+                                                    .withValues(alpha: 0.2),
+                                                blurRadius: 10,
+                                                offset: const Offset(0, 4),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                _commentCount.toString(),
+                                                style: AppTextStyles.h2(isDark).copyWith(
+                                                  color: AppColors.getSecondaryColor(isDark),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                'COMMENTS',
+                                                style: AppTextStyles.label(isDark),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Settings Container
+                        Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.getCardColor(isDark).withValues(alpha: 0.7),
+                            border: Border.all(
+                              color: AppColors.getAccentColor(isDark),
+                              width: 2,
+                            ),
+                            boxShadow: isDark
+                                ? [
+                              BoxShadow(
+                                color: AppColors.neonPurpleGlow,
+                                blurRadius: 15,
+                              ),
+                            ]
+                                : [
+                              BoxShadow(
+                                color: AppColors.accentDark.withValues(alpha: 0.2),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              ListTile(
+                                leading: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: AppColors.getAccentColor(isDark),
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    Icons.lock,
+                                    color: AppColors.getAccentColor(isDark),
+                                    size: 20,
+                                  ),
+                                ),
+                                title: Text(
+                                  'CHANGE PASSWORD',
+                                  style: AppTextStyles.label(isDark),
+                                ),
+                                trailing: Icon(
+                                  Icons.arrow_forward,
+                                  size: 20,
+                                  color: AppColors.getTextColor(isDark)
+                                      .withValues(alpha: 0.5),
+                                ),
+                                onTap: _changePassword,
+                              ),
+                              Divider(
+                                height: 1,
+                                thickness: 2,
+                                color: AppColors.getAccentColor(isDark)
+                                    .withValues(alpha: 0.3),
+                              ),
+                              ListTile(
+                                leading: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: AppColors.getAccentColor(isDark),
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    Icons.notifications,
+                                    color: AppColors.getAccentColor(isDark),
+                                    size: 20,
+                                  ),
+                                ),
+                                title: Text(
+                                  'NOTIFICATIONS',
+                                  style: AppTextStyles.label(isDark),
+                                ),
+                                trailing: Icon(
+                                  Icons.arrow_forward,
+                                  size: 20,
+                                  color: AppColors.getTextColor(isDark)
+                                      .withValues(alpha: 0.5),
+                                ),
+                                onTap: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'FEATURE COMING SOON',
+                                        style: AppTextStyles.systemMessage(isDark),
+                                      ),
+                                      backgroundColor: AppColors.darkCard,
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(0),
+                                        side: BorderSide(
+                                          color: AppColors.getAccentColor(isDark),
+                                          width: 2,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Logout Button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              FirebaseAuth.instance.signOut();
+                              Navigator.pushReplacementNamed(context, '/login');
+                            },
+                            icon: const Icon(Icons.logout),
+                            label: Text(
+                              'DISCONNECT',
+                              style: AppTextStyles.button(isDark).copyWith(
+                                color: AppColors.darkBackground,
+                                letterSpacing: 2,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.error,
+                              foregroundColor: AppColors.darkBackground,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(0),
+                              ),
+                              elevation: 0,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
+      // Bottom Navigation Bar
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkCard.withValues(alpha: 0.95) : AppColors.lightCard,
+          border: Border(
+            top: BorderSide(
+              color: AppColors.getAccentColor(isDark),
+              width: 2,
+            ),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isDark
+                  ? AppColors.neonPurpleGlow
+                  : AppColors.accentDark.withValues(alpha: 0.2),
+              blurRadius: isDark ? 15 : 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          currentIndex: 3,
+          onTap: (index) {
+            switch (index) {
+              case 0:
+                Navigator.pushReplacementNamed(context, '/feed');
+                break;
+              case 1:
+                final user = FirebaseAuth.instance.currentUser;
+                if (user != null) {
+                  Navigator.pushNamed(context, '/create-post');
+                }
+                break;
+              case 2:
+                Navigator.pushReplacementNamed(context, '/search');
+                break;
+              case 3:
+                break;
+            }
+          },
+          backgroundColor: Colors.transparent,
+          selectedItemColor: AppColors.getAccentColor(isDark),
+          unselectedItemColor: isDark ? Colors.white54 : Colors.black54,
+          selectedLabelStyle: AppTextStyles.navLabel(isDark).copyWith(
+            color: AppColors.getAccentColor(isDark),
+          ),
+          unselectedLabelStyle: AppTextStyles.caption(isDark).copyWith(
+            fontWeight: FontWeight.w500,
+          ),
+          elevation: 0,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'FEED',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.add_box),
+              label: 'POST',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.search),
+              label: 'SEARCH',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'PROFILE',
+            ),
+          ],
+        ),
+      ),
     );
   }
+}
+
+// Grid painter for cyberpunk background
+class GridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = AppColors.gridDark
+      ..strokeWidth = 1;
+
+    const gridSize = 40.0;
+
+    for (double x = 0; x < size.width; x += gridSize) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+
+    for (double y = 0; y < size.height; y += gridSize) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
