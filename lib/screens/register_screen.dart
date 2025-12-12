@@ -449,9 +449,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
           .doc(userCredential.user!.uid)
           .set({
         'displayName': _nameController.text.trim(),
+        'displayNameLower': _nameController.text.trim().toLowerCase(), // Add this
         'email': _emailController.text.trim(),
         'createdAt': FieldValue.serverTimestamp(),
       });
+
 
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/feed');

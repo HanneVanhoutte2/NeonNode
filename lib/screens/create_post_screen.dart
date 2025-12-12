@@ -1,6 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:project/help_functions/app_colors.dart';
 import 'package:project/help_functions/app_text_styles.dart';
 import 'package:provider/provider.dart';
@@ -18,8 +21,183 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   final _auth = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
   final _textController = TextEditingController();
-  final _imageUrlController = TextEditingController();
   bool _isLoading = false;
+
+  // Image handling variables
+  File? _selectedImage;
+  String? _base64Image;
+  final ImagePicker _picker = ImagePicker();
+
+  // Pick image from gallery
+  Future<void> _pickImageFromGallery() async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
+      );
+
+      if (pickedFile != null) {
+        setState(() {
+          _selectedImage = File(pickedFile.path);
+        });
+        await _convertImageToBase64();
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'IMAGE SELECTION FAILED',
+            style: AppTextStyles.error(true),
+          ),
+          backgroundColor: AppColors.darkCard,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(0),
+            side: BorderSide(
+              color: AppColors.error,
+              width: 2,
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  // Pick image from camera
+  Future<void> _pickImageFromCamera() async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
+      );
+
+      if (pickedFile != null) {
+        setState(() {
+          _selectedImage = File(pickedFile.path);
+        });
+        await _convertImageToBase64();
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'CAMERA ACCESS FAILED',
+            style: AppTextStyles.error(true),
+          ),
+          backgroundColor: AppColors.darkCard,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(0),
+            side: BorderSide(
+              color: AppColors.error,
+              width: 2,
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  // Convert image to base64
+  Future<void> _convertImageToBase64() async {
+    if (_selectedImage == null) return;
+
+    try {
+      final bytes = await _selectedImage!.readAsBytes();
+      final base64String = base64Encode(bytes);
+
+      setState(() {
+        _base64Image = 'data:image/jpeg;base64,$base64String';
+      });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'IMAGE ENCODING FAILED',
+            style: AppTextStyles.error(true),
+          ),
+          backgroundColor: AppColors.darkCard,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(0),
+            side: BorderSide(
+              color: AppColors.error,
+              width: 2,
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  // Show image source selection dialog
+  void _showImageSourceDialog(bool isDark) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.getCardColor(isDark),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(0),
+          side: BorderSide(
+            color: AppColors.getPrimaryColor(isDark),
+            width: 2,
+          ),
+        ),
+        title: Text(
+          'SELECT IMAGE SOURCE',
+          style: AppTextStyles.h4(isDark),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(
+                Icons.photo_library,
+                color: AppColors.getPrimaryColor(isDark),
+              ),
+              title: Text(
+                'Gallery',
+                style: AppTextStyles.bodyLarge(isDark),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImageFromGallery();
+              },
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.camera_alt,
+                color: AppColors.getSecondaryColor(isDark),
+              ),
+              title: Text(
+                'Camera',
+                style: AppTextStyles.bodyLarge(isDark),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImageFromCamera();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Remove selected image
+  void _removeImage() {
+    setState(() {
+      _selectedImage = null;
+      _base64Image = null;
+    });
+  }
 
   Future<void> _onAddPost() async {
     if (!_formKey.currentState!.validate()) return;
@@ -55,7 +233,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       await FirebaseFirestore.instance.collection('posts').add({
         'authorId': userId,
         'text': _textController.text.trim(),
-        'imageUrl': _imageUrlController.text.trim(),
+        'imageBase64': _base64Image, // Store base64 string
         'createdAt': FieldValue.serverTimestamp(),
         'likeCount': 0,
         'commentCount': 0,
@@ -92,7 +270,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   @override
   void dispose() {
     _textController.dispose();
-    _imageUrlController.dispose();
     super.dispose();
   }
 
@@ -419,34 +596,74 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
                                       const SizedBox(height: 24),
 
-                                      // Image URL field
-                                      TextFormField(
-                                        controller: _imageUrlController,
-                                        style: AppTextStyles.input(isDark),
-                                        decoration: InputDecoration(
-                                          labelText: 'IMAGE URL [OPTIONAL]',
-                                          labelStyle: AppTextStyles.inputHint(isDark).copyWith(
-                                            color: AppColors.getSecondaryColor(isDark).withValues(alpha: 0.7),
-                                          ),
-                                          filled: true,
-                                          fillColor: AppColors.getBackgroundColor(isDark).withValues(alpha: 0.5),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(0),
-                                            borderSide: BorderSide(
-                                              color: AppColors.getSecondaryColor(isDark).withValues(alpha: 0.5),
+                                      // Image preview
+                                      if (_selectedImage != null)
+                                        Stack(
+                                          children: [
+                                            Container(
+                                              width: double.infinity,
+                                              height: 200,
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                  color: AppColors.getPrimaryColor(isDark),
+                                                  width: 2,
+                                                ),
+                                              ),
+                                              child: Image.file(
+                                                _selectedImage!,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                            Positioned(
+                                              top: 8,
+                                              right: 8,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.darkCard,
+                                                  border: Border.all(
+                                                    color: AppColors.error,
+                                                    width: 2,
+                                                  ),
+                                                ),
+                                                child: IconButton(
+                                                  onPressed: _removeImage,
+                                                  icon: Icon(
+                                                    Icons.close,
+                                                    color: AppColors.error,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+
+                                      if (_selectedImage != null)
+                                        const SizedBox(height: 16),
+
+                                      // Add/Change Image Button
+                                      SizedBox(
+                                        width: double.infinity,
+                                        height: 50,
+                                        child: OutlinedButton.icon(
+                                          onPressed: () => _showImageSourceDialog(isDark),
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: AppColors.getPrimaryColor(isDark),
+                                            side: BorderSide(
+                                              color: AppColors.getPrimaryColor(isDark),
                                               width: 2,
                                             ),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(0),
-                                            borderSide: BorderSide(
-                                              color: AppColors.getSecondaryColor(isDark),
-                                              width: 2,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(0),
                                             ),
                                           ),
-                                          contentPadding: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 16,
+                                          icon: Icon(
+                                            _selectedImage == null ? Icons.add_photo_alternate : Icons.change_circle,
+                                          ),
+                                          label: Text(
+                                            _selectedImage == null ? 'ADD IMAGE [OPTIONAL]' : 'CHANGE IMAGE',
+                                            style: AppTextStyles.button(isDark).copyWith(
+                                              color: AppColors.getPrimaryColor(isDark),
+                                            ),
                                           ),
                                         ),
                                       ),

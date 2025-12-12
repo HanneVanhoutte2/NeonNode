@@ -1,6 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../help_functions/theme_provider.dart';
 import '../help_functions/app_colors.dart';
@@ -21,6 +25,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isLoading = true;
   int _postCount = 0;
   int _commentCount = 0;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -222,10 +227,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) return;
 
-    final controller = TextEditingController(text: _avatarUrl);
     final isDark = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
 
-    final result = await showDialog<bool>(
+    // Show image source dialog
+    final source = await showDialog<ImageSource>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
@@ -243,40 +248,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: controller,
-              style: AppTextStyles.input(isDark),
-              decoration: InputDecoration(
-                hintText: 'IMAGE URL',
-                hintStyle: AppTextStyles.inputHint(isDark),
-                filled: true,
-                fillColor: AppColors.getBackgroundColor(isDark).withValues(alpha: 0.5),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(0),
-                  borderSide: BorderSide(
-                    color: AppColors.getSecondaryColor(isDark).withValues(alpha: 0.5),
-                    width: 2,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(0),
-                  borderSide: BorderSide(
-                    color: AppColors.getSecondaryColor(isDark),
-                    width: 2,
-                  ),
-                ),
+            ListTile(
+              leading: Icon(
+                Icons.photo_library,
+                color: AppColors.getPrimaryColor(isDark),
               ),
+              title: Text(
+                'Gallery',
+                style: AppTextStyles.bodyLarge(isDark),
+              ),
+              onTap: () => Navigator.pop(dialogContext, ImageSource.gallery),
             ),
-            const SizedBox(height: 12),
-            Text(
-              'PASTE DIRECT IMAGE LINK',
-              style: AppTextStyles.caption(isDark),
+            ListTile(
+              leading: Icon(
+                Icons.camera_alt,
+                color: AppColors.getSecondaryColor(isDark),
+              ),
+              title: Text(
+                'Camera',
+                style: AppTextStyles.bodyLarge(isDark),
+              ),
+              onTap: () => Navigator.pop(dialogContext, ImageSource.camera),
             ),
           ],
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
+            onPressed: () => Navigator.pop(dialogContext, null),
             child: Text(
               'CANCEL',
               style: AppTextStyles.button(isDark).copyWith(
@@ -285,95 +283,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ),
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: AppColors.getSecondaryColor(isDark),
-                width: 2,
-              ),
-            ),
-            child: TextButton(
-              onPressed: () async {
-                final newUrl = controller.text.trim();
-                try {
-                  await FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(currentUser.uid)
-                      .update({'avatarUrl': newUrl});
-
-                  if (dialogContext.mounted) {
-                    Navigator.pop(dialogContext, true);
-                  }
-                } catch (e) {
-                  if (dialogContext.mounted) {
-                    Navigator.pop(dialogContext, false);
-                  }
-                }
-              },
-              child: Text(
-                'SAVE',
-                style: AppTextStyles.button(isDark).copyWith(
-                  color: AppColors.getSecondaryColor(isDark),
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
 
-    if (result == true) {
-      await _fetchUserData();
+    if (source == null) return;
+
+    try {
+      final XFile? pickedFile = await _picker.pickImage(
+        source: source,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 85,
+      );
+
+      if (pickedFile != null) {
+        final File imageFile = File(pickedFile.path);
+        final bytes = await imageFile.readAsBytes();
+        final base64String = base64Encode(bytes);
+        final base64Image = 'data:image/jpeg;base64,$base64String';
+
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.uid)
+            .update({'profilePicture': base64Image});
+
+        await _fetchUserData();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('AVATAR UPDATED', style: AppTextStyles.success(isDark)),
+              backgroundColor: AppColors.darkCard,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(0),
+                side: BorderSide(color: AppColors.success, width: 2),
+              ),
+            ),
+          );
+        }
+      }
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('AVATAR UPDATED', style: AppTextStyles.success(isDark)),
+            content: Text('IMAGE UPLOAD FAILED', style: AppTextStyles.error(isDark)),
             backgroundColor: AppColors.darkCard,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(0),
-              side: BorderSide(color: AppColors.success, width: 2),
+              side: BorderSide(color: AppColors.error, width: 2),
             ),
           ),
         );
       }
-    }
-  }
-
-  Future<void> _changePassword() async {
-    final isDark = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null || currentUser.email == null) return;
-
-    try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(email: currentUser.email!);
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('RESET EMAIL SENT', style: AppTextStyles.success(isDark)),
-          backgroundColor: AppColors.darkCard,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(0),
-            side: BorderSide(color: AppColors.success, width: 2),
-          ),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('RESET FAILED', style: AppTextStyles.error(isDark)),
-          backgroundColor: AppColors.darkCard,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(0),
-            side: BorderSide(color: AppColors.error, width: 2),
-          ),
-        ),
-      );
     }
   }
 
@@ -823,114 +787,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                           ],
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Settings Container
-                        Container(
-                          decoration: BoxDecoration(
-                            color: AppColors.getCardColor(isDark).withValues(alpha: 0.7),
-                            border: Border.all(
-                              color: AppColors.getAccentColor(isDark),
-                              width: 2,
-                            ),
-                            boxShadow: isDark
-                                ? [
-                              BoxShadow(
-                                color: AppColors.neonPurpleGlow,
-                                blurRadius: 15,
-                              ),
-                            ]
-                                : [
-                              BoxShadow(
-                                color: AppColors.accentDark.withValues(alpha: 0.2),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              ListTile(
-                                leading: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: AppColors.getAccentColor(isDark),
-                                      width: 2,
-                                    ),
-                                  ),
-                                  child: Icon(
-                                    Icons.lock,
-                                    color: AppColors.getAccentColor(isDark),
-                                    size: 20,
-                                  ),
-                                ),
-                                title: Text(
-                                  'CHANGE PASSWORD',
-                                  style: AppTextStyles.label(isDark),
-                                ),
-                                trailing: Icon(
-                                  Icons.arrow_forward,
-                                  size: 20,
-                                  color: AppColors.getTextColor(isDark)
-                                      .withValues(alpha: 0.5),
-                                ),
-                                onTap: _changePassword,
-                              ),
-                              Divider(
-                                height: 1,
-                                thickness: 2,
-                                color: AppColors.getAccentColor(isDark)
-                                    .withValues(alpha: 0.3),
-                              ),
-                              ListTile(
-                                leading: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: AppColors.getAccentColor(isDark),
-                                      width: 2,
-                                    ),
-                                  ),
-                                  child: Icon(
-                                    Icons.notifications,
-                                    color: AppColors.getAccentColor(isDark),
-                                    size: 20,
-                                  ),
-                                ),
-                                title: Text(
-                                  'NOTIFICATIONS',
-                                  style: AppTextStyles.label(isDark),
-                                ),
-                                trailing: Icon(
-                                  Icons.arrow_forward,
-                                  size: 20,
-                                  color: AppColors.getTextColor(isDark)
-                                      .withValues(alpha: 0.5),
-                                ),
-                                onTap: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'FEATURE COMING SOON',
-                                        style: AppTextStyles.systemMessage(isDark),
-                                      ),
-                                      backgroundColor: AppColors.darkCard,
-                                      behavior: SnackBarBehavior.floating,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(0),
-                                        side: BorderSide(
-                                          color: AppColors.getAccentColor(isDark),
-                                          width: 2,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
                         ),
                         const SizedBox(height: 24),
 
